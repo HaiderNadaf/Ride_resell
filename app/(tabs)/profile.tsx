@@ -12,16 +12,21 @@ import { useUser, useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
-  const { user } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
 
-  if (!user) {
+  if (!isLoaded) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text style={styles.loadingText}>Loading profile...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </SafeAreaView>
     );
+  }
+
+  if (!isSignedIn) {
+    router.replace("/auth/sign-in");
+    return null;
   }
 
   const createdAt = new Date(user.createdAt).toLocaleDateString();
@@ -83,16 +88,18 @@ export default function ProfileScreen() {
         {/* ACTION BUTTONS */}
         <TouchableOpacity
           style={styles.editButton}
-          onPress={() => router.push("/edit-profile")}
+          onPress={() => router.push("/(tabs)/create")}
         >
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => signOut().then(() => router.replace("/sign-in"))}
+          onPress={async () => {
+            await signOut({ sessionId: "all" }); // ✅ IMPORTANT
+          }}
         >
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>Logoutz</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

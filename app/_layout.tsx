@@ -11,7 +11,6 @@ const tokenCache = {
 function RootNavigator() {
   const { isLoaded, isSignedIn } = useAuth();
 
-  // ✅ Wait until Clerk restores the session
   if (!isLoaded) return null;
 
   return (
