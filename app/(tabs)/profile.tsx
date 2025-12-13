@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
@@ -17,48 +24,98 @@ export default function ProfileScreen() {
     );
   }
 
+  const createdAt = new Date(user.createdAt).toLocaleDateString();
+  const lastSignedIn = new Date(user.lastSignInAt).toLocaleDateString();
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* HEADER */}
-      <Text style={styles.header}>Profile</Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* HEADER */}
+        <Text style={styles.header}>My Profile</Text>
 
-      {/* USER CARD */}
-      <View style={styles.profileCard}>
-        <Image
-          source={{
-            uri:
-              user.imageUrl ||
-              "https://via.placeholder.com/150/000/fff?text=User",
-          }}
-          style={styles.avatar}
-        />
+        {/* USER CARD */}
+        <View style={styles.profileCard}>
+          <Image
+            source={{
+              uri:
+                user.imageUrl ||
+                "https://via.placeholder.com/150/000/fff?text=User",
+            }}
+            style={styles.avatar}
+          />
 
-        <Text style={styles.username}>{user.fullName || "No Name"}</Text>
-        <Text style={styles.email}>
-          {user.primaryEmailAddress?.emailAddress}
-        </Text>
-        {/* 
+          <Text style={styles.username}>{user.fullName || "No Name"}</Text>
+
+          <Text style={styles.subText}>@{user.username || "no-username"}</Text>
+
+          <Text style={styles.email}>
+            {user.primaryEmailAddress?.emailAddress}
+          </Text>
+        </View>
+
+        {/* USER DETAILS */}
+        <View style={styles.infoCard}>
+          <InfoRow label="User ID" value={user.id} />
+
+          <InfoRow label="First Name" value={user.firstName || "—"} />
+
+          <InfoRow label="Last Name" value={user.lastName || "—"} />
+
+          <InfoRow
+            label="Phone"
+            value={user.primaryPhoneNumber?.phoneNumber || "Not added"}
+          />
+
+          <InfoRow
+            label="Email Verified"
+            value={
+              user.primaryEmailAddress?.verification?.status === "verified"
+                ? "✅ Verified"
+                : "❌ Not Verified"
+            }
+          />
+
+          <InfoRow label="Account Created" value={createdAt} />
+
+          <InfoRow label="Last Login" value={lastSignedIn} />
+        </View>
+
+        {/* ACTION BUTTONS */}
         <TouchableOpacity
           style={styles.editButton}
           onPress={() => router.push("/edit-profile")}
-        > */}
-        <Text style={styles.editButtonText}>Edit Profile</Text>
-        {/* </TouchableOpacity> */}
-      </View>
+        >
+          <Text style={styles.editButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
 
-      {/* ACTION BUTTONS */}
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={() => signOut().then(() => router.replace("/sign-in"))}
-      >
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => signOut().then(() => router.replace("/sign-in"))}
+        >
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
+/* Reusable row component */
+function InfoRow({ label, value }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={styles.rowValue}>{value}</Text>
+    </View>
+  );
+}
+
+/* STYLES */
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#fff",
+  },
 
   center: {
     flex: 1,
@@ -75,22 +132,23 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "900",
     color: "#111",
-    marginBottom: 25,
+    marginBottom: 20,
   },
 
   profileCard: {
     alignItems: "center",
     backgroundColor: "#f3f4f6",
     padding: 25,
-    borderRadius: 20,
-    elevation: 4,
+    borderRadius: 22,
+    elevation: 3,
+    marginBottom: 20,
   },
 
   avatar: {
     width: 110,
     height: 110,
     borderRadius: 55,
-    marginBottom: 15,
+    marginBottom: 10,
   },
 
   username: {
@@ -99,27 +157,60 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
 
+  subText: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginTop: 2,
+  },
+
   email: {
     fontSize: 16,
+    color: "#2563eb",
+    marginTop: 5,
+  },
+
+  infoCard: {
+    backgroundColor: "#f9fafb",
+    padding: 15,
+    borderRadius: 18,
+  },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderColor: "#e5e7eb",
+    paddingVertical: 10,
+  },
+
+  rowLabel: {
     color: "#6b7280",
-    marginTop: 4,
+    fontSize: 14,
+  },
+
+  rowValue: {
+    fontWeight: "700",
+    color: "#111827",
+    maxWidth: "60%",
+    textAlign: "right",
   },
 
   editButton: {
-    marginTop: 15,
+    marginTop: 25,
     backgroundColor: "#0ea5e9",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 25,
+    paddingVertical: 14,
+    borderRadius: 15,
   },
 
   editButtonText: {
     color: "#fff",
-    fontWeight: "700",
+    textAlign: "center",
+    fontWeight: "800",
+    fontSize: 16,
   },
 
   logoutButton: {
-    marginTop: 30,
+    marginTop: 15,
     backgroundColor: "#ef4444",
     paddingVertical: 14,
     borderRadius: 15,
@@ -128,7 +219,7 @@ const styles = StyleSheet.create({
   logoutText: {
     textAlign: "center",
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "800",
   },
 });

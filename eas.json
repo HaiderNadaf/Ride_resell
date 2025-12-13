@@ -30,10 +30,7 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
-      "android": {
-        "preInstall": ["npm run eas-build-pre-install"]
-      }
+      "distribution": "internal"
     },
     "production": {
       "autoIncrement": true

@@ -35,7 +35,7 @@ export default function RideFeed() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
-    fetch("http://192.168.10.83:5000/api/products")
+    fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/api/products`)
       .then((r) => r.json())
       .then((json) => setData(json.data || []))
       .catch(console.log)
