@@ -221,7 +221,7 @@ export default function RideFeed() {
         columnWrapperStyle={{ justifyContent: "space-between" }}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => <RideCard item={item} />}
-        contentContainerStyle={{ paddingBottom: 110 }}
+        contentContainerStyle={{ paddingBottom: 110, marginTop: 20 }}
       />
     </SafeAreaView>
   );

@@ -34,7 +34,10 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 120 }} // ✅ FIX
+      >
         {/* HEADER */}
         <Text style={styles.header}>My Profile</Text>
 
@@ -50,9 +53,7 @@ export default function ProfileScreen() {
           />
 
           <Text style={styles.username}>{user.fullName || "No Name"}</Text>
-
           <Text style={styles.subText}>@{user.username || "no-username"}</Text>
-
           <Text style={styles.email}>
             {user.primaryEmailAddress?.emailAddress}
           </Text>
@@ -61,16 +62,12 @@ export default function ProfileScreen() {
         {/* USER DETAILS */}
         <View style={styles.infoCard}>
           <InfoRow label="User ID" value={user.id} />
-
           <InfoRow label="First Name" value={user.firstName || "—"} />
-
           <InfoRow label="Last Name" value={user.lastName || "—"} />
-
           <InfoRow
             label="Phone"
             value={user.primaryPhoneNumber?.phoneNumber || "Not added"}
           />
-
           <InfoRow
             label="Email Verified"
             value={
@@ -79,9 +76,7 @@ export default function ProfileScreen() {
                 : "❌ Not Verified"
             }
           />
-
           <InfoRow label="Account Created" value={createdAt} />
-
           <InfoRow label="Last Login" value={lastSignedIn} />
         </View>
 
@@ -93,13 +88,19 @@ export default function ProfileScreen() {
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
 
+        {/* LOGOUT */}
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={async () => {
-            await signOut({ sessionId: "all" }); // ✅ IMPORTANT
+            try {
+              await signOut();
+              router.replace("/auth/sign-in");
+            } catch (e) {
+              console.log("Logout error:", e);
+            }
           }}
         >
-          <Text style={styles.logoutText}>Logoutz</Text>
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
