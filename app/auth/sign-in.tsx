@@ -1,4 +1,4 @@
-import { useSignIn } from "@clerk/clerk-expo";
+import { useSignIn, useUser } from "@clerk/clerk-expo";
 import { useRouter, Link } from "expo-router";
 import {
   View,
@@ -6,33 +6,70 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SignInScreen() {
-  const { signIn, isLoaded, setActive } = useSignIn();
+  const { signIn, setActive, isLoaded: signInLoaded } = useSignIn();
+  const { isSignedIn, isLoaded: userLoaded, user } = useUser();
   const router = useRouter();
 
-  const [identifier, setIdentifier] = useState(""); // username or email
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Redirect if already signed in
+  useEffect(() => {
+    if (userLoaded && isSignedIn) {
+      router.replace("/(tabs)");
+    }
+  }, [userLoaded, isSignedIn, router]);
+
+  // Show loading until we know auth status
+  if (!userLoaded || !signInLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
+
+  // If already signed in, redirect immediately (extra safety)
+  if (isSignedIn) {
+    router.replace("/(tabs)");
+    return null;
+  }
 
   const onPress = async () => {
-    if (!isLoaded) return;
+    if (!signInLoaded) return;
+
     setErr("");
+    setLoading(true);
 
     try {
-      const attempt = await signIn.create({
+      const result = await signIn.create({
         identifier,
         password,
       });
 
-      if (attempt.status === "complete") {
-        await setActive({ session: attempt.createdSessionId });
+      if (result.status === "complete") {
+        // Important: Set the session as active
+        await setActive({ session: result.createdSessionId });
         router.replace("/(tabs)");
+      } else {
+        // Handle cases like needs MFA, etc. (rare for email/password)
+        setErr("Login incomplete. Please try again.");
       }
     } catch (e: any) {
-      setErr(e.errors?.[0]?.longMessage || "Login failed");
+      const message =
+        e.errors?.[0]?.longMessage ||
+        e.errors?.[0]?.message ||
+        "Invalid email or password. Please try again.";
+      setErr(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,11 +81,15 @@ export default function SignInScreen() {
       {err ? <Text style={styles.errorBox}>{err}</Text> : null}
 
       <TextInput
-        placeholder="Email or Username"
+        placeholder="Email"
         placeholderTextColor="#9ca3af"
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="email-address"
         style={styles.input}
         value={identifier}
         onChangeText={setIdentifier}
+        editable={!loading}
       />
 
       <TextInput
@@ -58,10 +99,19 @@ export default function SignInScreen() {
         style={styles.input}
         value={password}
         onChangeText={setPassword}
+        editable={!loading}
       />
 
-      <TouchableOpacity style={styles.button} onPress={onPress}>
-        <Text style={styles.buttonText}>Sign In</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={onPress}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Sign In</Text>
+        )}
       </TouchableOpacity>
 
       <Text style={styles.footerText}>
@@ -79,6 +129,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 28,
     justifyContent: "center",
+    backgroundColor: "#ffffff",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#ffffff",
   },
   title: {
@@ -108,12 +164,15 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 12,
     marginTop: 10,
+    alignItems: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
     color: "#fff",
     fontSize: 17,
     fontWeight: "700",
-    textAlign: "center",
   },
   footerText: {
     marginTop: 24,
@@ -128,9 +187,10 @@ const styles = StyleSheet.create({
   errorBox: {
     backgroundColor: "#fee2e2",
     color: "#b91c1c",
-    padding: 10,
+    padding: 12,
     borderRadius: 10,
-    marginBottom: 12,
-    fontWeight: "600",
+    marginBottom: 16,
+    fontSize: 15,
+    textAlign: "center",
   },
 });

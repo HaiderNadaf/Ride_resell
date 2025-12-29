@@ -27,7 +27,6 @@ export default function HomeScreen() {
 
   const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}/api/products`;
 
-  // Banner images
   // const banners = [
   //   "/my-app/assets/images/carImage1.jpg",
   //   "/my-app/assets/images/carImage2.jpg",
@@ -40,7 +39,7 @@ export default function HomeScreen() {
     "data:image/jpeg;base64,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",
   ];
 
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<any>(null);
   const [bannerIndex, setBannerIndex] = useState(0);
 
   useEffect(() => {
@@ -56,29 +55,69 @@ export default function HomeScreen() {
     const timer = setInterval(() => {
       let nextIndex = (bannerIndex + 1) % banners.length;
       setBannerIndex(nextIndex);
-      scrollRef.current?.scrollTo({ x: nextIndex * width, animated: true });
+      scrollRef.current?.scrollTo({
+        x: nextIndex * width,
+        animated: true,
+      });
     }, 3000);
 
     return () => clearInterval(timer);
   }, [bannerIndex]);
 
-  /** PRODUCT CARD */
+  /** 🔥 PRODUCT CARD – REFERENCE STYLE */
   const CarCard = ({ item }: any) => (
     <TouchableOpacity
-      style={styles.card}
+      style={styles.debateCard}
+      activeOpacity={0.9}
       onPress={() => router.push(`/details/${item._id}`)}
     >
+      {/* IMAGE */}
       <Image
         source={{ uri: item.image || FALLBACK_IMAGE }}
-        style={styles.cardImage}
+        style={styles.debateImage}
       />
 
-      <View style={styles.cardInfo}>
-        <Text numberOfLines={1} style={styles.carName}>
+      {/* CATEGORY */}
+      <View style={styles.categoryPill}>
+        <Text style={styles.categoryText}>{item.category?.toUpperCase()}</Text>
+      </View>
+
+      {/* MORE */}
+      <Text style={styles.moreIcon}>⋮</Text>
+
+      {/* CONTENT */}
+      <View style={styles.debateContent}>
+        <Text style={styles.creatorText}>{item.brand}</Text>
+
+        <Text style={styles.debateTitle} numberOfLines={2}>
+          {item.model}
+        </Text>
+
+        <Text style={styles.debateDesc} numberOfLines={3}>
           {item.text}
         </Text>
-        <Text style={styles.carPrice}>₹ {item.price.toLocaleString()}</Text>
-        <Text style={styles.offerText}>View November Offers →</Text>
+
+        {/* TAGS */}
+        <View style={styles.tagRow}>
+          {item.keySpecifications?.slice(0, 3).map((tag: string, i: number) => (
+            <View key={i} style={styles.tag}>
+              <Text style={styles.tagText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* META */}
+        <View style={styles.metaRow}>
+          <Text style={styles.metaText}>₹ {item.price?.toLocaleString()}</Text>
+          <Text style={styles.metaText}>
+            {item.standOutFeatures?.length || 0} Highlights
+          </Text>
+        </View>
+
+        {/* CTA */}
+        <View style={styles.ctaButton}>
+          <Text style={styles.ctaText}>VIEW DETAILS</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -95,17 +134,16 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* 🔥 TOP BAR */}
+        {/* TOP BAR */}
         <View style={styles.topBar}>
           <Text style={styles.menu}>☰</Text>
           <Text style={styles.city}>Bengaluru</Text>
-          <Text style={styles.heart}></Text>
           <View style={styles.profileCircle}>
             <Text style={{ color: "#fff" }}>H</Text>
           </View>
         </View>
 
-        {/* 🔍 SEARCH BAR */}
+        {/* SEARCH */}
         <View style={styles.searchBar}>
           <MagnifyingGlassIcon size={22} color="#6b7280" />
           <TextInput placeholder="Search Cars" style={styles.searchInput} />
@@ -114,7 +152,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* 🖼 BANNER SLIDER */}
+        {/* BANNER */}
         <ScrollView
           horizontal
           ref={scrollRef}
@@ -140,30 +178,7 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* SQUARE GRID */}
-        {/* <View style={styles.gridRow}>
-          <View style={[styles.square, { backgroundColor: "#A78BFA" }]}>
-            <Text style={styles.squareTitle}>New Cars</Text>
-            <Text style={styles.squareSub}>with exciting offers</Text>
-          </View>
-
-          <View style={[styles.square, { backgroundColor: "#FB7185" }]}>
-            <Text style={styles.squareTitle}>Buy Used Car</Text>
-            <Text style={styles.squareSub}>pre-owned cars</Text>
-          </View>
-        </View>
-
-        <View style={styles.gridRow}>
-          <View style={[styles.square, { backgroundColor: "#60A5FA" }]}>
-            <Text style={styles.squareTitle}>Sell Car</Text>
-            <Text style={styles.squareSub}>from your home</Text>
-          </View>
-
-          <View style={[styles.square, { backgroundColor: "#818CF8" }]}>
-            <Text style={styles.squareTitle}>News</Text>
-            <Text style={styles.squareSub}>to keep updated</Text>
-          </View>
-        </View> */}
+        {/* GRID */}
         <View style={styles.gridRow}>
           <TouchableOpacity
             style={[styles.square, { backgroundColor: "#A78BFA" }]}
@@ -183,7 +198,7 @@ export default function HomeScreen() {
             style={[styles.square, { backgroundColor: "#FB7185" }]}
           >
             <Image
-              source={require("../../assets/images/buyUsedCar.png")}
+              source={require("../../assets/images/Usedcar.png")}
               style={styles.squareImage}
               resizeMode="contain"
             />
@@ -211,7 +226,7 @@ export default function HomeScreen() {
             style={[styles.square, { backgroundColor: "#818CF8" }]}
           >
             <Image
-              source={require("../../assets/images/News.png")}
+              source={require("../../assets/images/carnews.png")}
               style={styles.squareImage}
               resizeMode="contain"
             />
@@ -221,10 +236,9 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* 🔥 MOST SEARCHED CARS */}
+        {/* LIST */}
         <Text style={styles.sectionTitle}>The most searched cars</Text>
 
-        {/* PRODUCT LIST */}
         <FlatList
           data={cars}
           renderItem={({ item }) => <CarCard item={item} />}
@@ -239,13 +253,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   topBar: {
     flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
     justifyContent: "space-between",
+    padding: 16,
   },
   menu: { fontSize: 26 },
   city: { fontSize: 18, fontWeight: "600" },
-  heart: { fontSize: 22 },
   profileCircle: {
     width: 32,
     height: 32,
@@ -272,11 +284,11 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, marginLeft: 10, fontSize: 16 },
   expertButton: {
+    borderColor: "#FF4500",
+    borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderWidth: 1,
     borderRadius: 20,
-    borderColor: "#FF4500",
   },
   expertText: { color: "#FF4500", fontWeight: "700", fontSize: 12 },
 
@@ -287,11 +299,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 
-  dotRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-  },
+  dotRow: { flexDirection: "row", justifyContent: "center", marginTop: 8 },
   dot: {
     width: 8,
     height: 8,
@@ -307,58 +315,127 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 16,
   },
-
   square: {
     width: "48%",
     height: 140,
     borderRadius: 16,
     padding: 16,
   },
-
-  squareTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#fff",
-  },
-  squareSub: { marginTop: 6, color: "#fff" },
-
-  viewMoreBtn: {
-    marginVertical: 16,
-    alignSelf: "center",
-  },
-  viewMoreText: { color: "#111", fontSize: 16, fontWeight: "600" },
+  squareTitle: { fontSize: 20, fontWeight: "800", color: "#fff" },
 
   sectionTitle: {
     fontSize: 22,
     fontWeight: "800",
     marginLeft: 16,
-    marginTop: 10,
+    marginTop: 12,
   },
 
-  tabRow: { marginTop: 14, marginLeft: 16 },
-  tabItem: { marginRight: 24, alignItems: "center" },
-  tabText: { fontSize: 18, fontWeight: "700" },
-  underline: {
-    width: 25,
-    height: 3,
-    backgroundColor: "#FF4500",
-    marginTop: 4,
-    borderRadius: 20,
-  },
-
-  card: {
-    backgroundColor: "#fff",
+  /* 🔥 CARD STYLES */
+  debateCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 24,
     marginHorizontal: 16,
-    marginVertical: 10,
-    borderRadius: 12,
-    elevation: 3,
+    marginVertical: 14,
     overflow: "hidden",
+
+    // ANDROID
+    elevation: 8,
+
+    // IOS
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
   },
-  cardImage: { width: "100%", height: 200 },
-  cardInfo: { padding: 14 },
-  carName: { fontSize: 18, fontWeight: "700" },
-  carPrice: { marginTop: 4, fontSize: 16, fontWeight: "600" },
-  offerText: { marginTop: 10, color: "#FF4500", fontWeight: "700" },
+
+  debateImage: {
+    width: "100%",
+    height: 220,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+
+  categoryPill: {
+    position: "absolute",
+    top: 14,
+    left: 14,
+    backgroundColor: "rgba(0,0,0,0.85)",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 22,
+  },
+
+  categoryText: {
+    color: "#FFFFFF", // white text
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  moreIcon: {
+    position: "absolute",
+    top: 12,
+    right: 14,
+    fontSize: 22,
+    color: "#fff",
+  },
+
+  debateContent: {
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 18,
+    backgroundColor: "#f9fafb",
+  },
+
+  creatorText: { color: "#64748b", fontSize: 14 },
+
+  debateTitle: {
+    color: "#0f172a",
+    fontSize: 21,
+    fontWeight: "700",
+    lineHeight: 28,
+    marginTop: 4,
+  },
+
+  debateDesc: {
+    color: "#475569",
+    marginTop: 8,
+  },
+
+  tagRow: { flexDirection: "row", flexWrap: "wrap", marginTop: 12 },
+  tag: {
+    backgroundColor: "#e2e8f0",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+
+  tagText: {
+    color: "#0f172a",
+    fontSize: 12,
+  },
+
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+  metaText: { color: "#94a3b8", fontSize: 13 },
+
+  ctaButton: {
+    backgroundColor: "#000000",
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginTop: 16,
+    alignItems: "center",
+  },
+
+  ctaText: {
+    color: "#FFFFFF", // white text
+    fontSize: 16,
+    fontWeight: "600",
+  },
 
   loadingBox: {
     flex: 1,

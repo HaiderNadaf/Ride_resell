@@ -20,7 +20,6 @@ export default function DetailsScreen() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ fetch full list and find by id (because backend returns array)
   useEffect(() => {
     if (!id) return;
 
@@ -34,37 +33,23 @@ export default function DetailsScreen() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // ✅ Share function
   const shareOnWhatsApp = async () => {
     if (!data) return;
 
-    try {
-      const link = `https://myapp.page.link/detail/${id}`;
+    const link = `https://myapp.page.link/detail/${id}`;
+    const message = `🚗 ${data.model || data.text}
 
-      const title = data.text || "Product";
-      const price = data.price
-        ? `₹ ${(data.price / 100000).toFixed(2)} Lakh`
-        : "Price not available";
+💰 ₹ ${(data.price / 100000).toFixed(2)} Lakh
 
-      const message = `🚀 Check out this product!
+👉 ${link}`;
 
-📌 ${title}
-💰 ${price}
-
-👉 Open in app:
-${link}`;
-
-      await Share.share({ message });
-    } catch (err) {
-      console.log("Share error:", err);
-    }
+    await Share.share({ message });
   };
 
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#FF4500" />
-        <Text>Loading details…</Text>
+        <ActivityIndicator size="large" />
       </SafeAreaView>
     );
   }
@@ -72,73 +57,76 @@ ${link}`;
   if (!data) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text>No details found.</Text>
+        <Text>No details found</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <View style={{ flex: 1 }}>
-      {/* ✅ FLOATING SHARE ICON */}
+      {/* Floating WhatsApp */}
       <TouchableOpacity
         onPress={shareOnWhatsApp}
-        style={styles.floatingShareBtn}
+        style={styles.shareBtn}
         activeOpacity={0.85}
       >
         <FontAwesome name="whatsapp" size={26} color="#fff" />
       </TouchableOpacity>
 
-      <ScrollView style={styles.container}>
-        {/* IMAGE */}
-        <Image source={{ uri: data.image }} style={styles.mainImage} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* HERO IMAGE */}
+        <Image source={{ uri: data.image }} style={styles.heroImage} />
 
-        {/* TITLE */}
-        <Text style={styles.title}>{data.text}</Text>
-
-        {/* PRICE */}
-        <Text style={styles.price}>
-          ₹ {(data.price / 100000).toFixed(2)} Lakh*
-        </Text>
-
-        {/* SPECS */}
-        <Text style={styles.sectionTitle}>Specifications</Text>
-        <View style={styles.box}>
-          {Object.entries(data.specs || {}).map(([key, value]) => (
-            <Text key={key} style={styles.specItem}>
-              {key.toUpperCase()}: {value}
-            </Text>
-          ))}
+        {/* TITLE CARD */}
+        <View style={styles.titleCard}>
+          <Text style={styles.brand}>{data.brand}</Text>
+          <Text style={styles.title}>{data.model || data.text}</Text>
+          <Text style={styles.price}>
+            ₹ {(data.price / 100000).toFixed(2)} Lakh*
+          </Text>
         </View>
 
-        {/* KEY SPECIFICATIONS */}
-        <Text style={styles.sectionTitle}>Key Specifications</Text>
-        <View style={styles.box}>
-          {data.keySpecifications?.map((item: string, i: number) => (
-            <Text key={i} style={styles.listItem}>
-              • {item}
-            </Text>
-          ))}
+        {/* QUICK HIGHLIGHTS */}
+        <View style={styles.chipRow}>
+          {data.keySpecifications
+            ?.slice(0, 3)
+            .map((item: string, i: number) => (
+              <View key={i} style={styles.chip}>
+                <Text style={styles.chipText}>{item}</Text>
+              </View>
+            ))}
         </View>
+
+        {/* DESCRIPTION */}
+        <Section title="Overview">
+          <Text style={styles.desc}>{data.text}</Text>
+        </Section>
+
+        {/* SPECIFICATIONS */}
+        {data.specs && (
+          <Section title="Specifications">
+            {Object.entries(data.specs).map(([key, value]) => (
+              <View key={key} style={styles.specRow}>
+                <Text style={styles.specKey}>{key}</Text>
+                <Text style={styles.specValue}>{value}</Text>
+              </View>
+            ))}
+          </Section>
+        )}
 
         {/* TOP FEATURES */}
-        <Text style={styles.sectionTitle}>Top Features</Text>
-        <View style={styles.box}>
+        <Section title="Top Features">
           {data.topFeatures?.map((item: string, i: number) => (
-            <Text key={i} style={styles.listItem}>
-              • {item}
-            </Text>
+            <Bullet key={i} text={item} />
           ))}
-        </View>
+        </Section>
 
-        {/* STAND OUT FEATURES */}
-        <Text style={styles.sectionTitle}>Stand Out Features</Text>
-        <View style={styles.box}>
+        {/* STANDOUT FEATURES */}
+        <Section title="Standout Features">
           {data.standOutFeatures?.map((item: string, i: number) => (
-            <Text key={i} style={styles.listItem}>
-              • {item}
-            </Text>
+            <Bullet key={i} text={item} />
           ))}
-        </View>
+        </Section>
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -146,23 +134,139 @@ ${link}`;
   );
 }
 
+/* ---------- REUSABLE COMPONENTS ---------- */
+
+const Section = ({ title, children }: any) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    {children}
+  </View>
+);
+
+const Bullet = ({ text }: { text: string }) => (
+  <View style={styles.bullet}>
+    <Text style={styles.bulletDot}>•</Text>
+    <Text style={styles.bulletText}>{text}</Text>
+  </View>
+);
+
+/* ---------- STYLES ---------- */
+
 const styles = StyleSheet.create({
-  container: {
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+
+  heroImage: {
+    width: "100%",
+    height: 280,
+  },
+
+  titleCard: {
     backgroundColor: "#fff",
     padding: 16,
+    marginHorizontal: 16,
+    marginTop: -40,
+    borderRadius: 20,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
   },
 
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  brand: {
+    color: "#64748b",
+    fontSize: 14,
   },
 
-  /* ✅ Floating WhatsApp button */
-  floatingShareBtn: {
+  title: {
+    fontSize: 22,
+    fontWeight: "800",
+    marginTop: 4,
+  },
+
+  price: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#16a34a",
+    marginTop: 6,
+  },
+
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: 16,
+    marginTop: 16,
+  },
+
+  chip: {
+    backgroundColor: "#f1f5f9",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+
+  chipText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#0f172a",
+  },
+
+  section: {
+    backgroundColor: "#fff",
+    marginHorizontal: 16,
+    marginTop: 20,
+    padding: 16,
+    borderRadius: 16,
+    elevation: 2,
+  },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    marginBottom: 10,
+  },
+
+  desc: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#475569",
+  },
+
+  specRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+
+  specKey: {
+    color: "#64748b",
+    fontWeight: "600",
+  },
+
+  specValue: {
+    fontWeight: "700",
+  },
+
+  bullet: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+
+  bulletDot: {
+    fontSize: 18,
+    marginRight: 6,
+  },
+
+  bulletText: {
+    fontSize: 15,
+    color: "#334155",
+  },
+
+  shareBtn: {
     position: "absolute",
     right: 16,
-    top: 16,
+    top: 40,
     backgroundColor: "#25D366",
     width: 54,
     height: 54,
@@ -171,52 +275,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 50,
     elevation: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 2 },
-  },
-
-  mainImage: {
-    width: "100%",
-    height: 240,
-    borderRadius: 12,
-  },
-
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
-    marginTop: 16,
-  },
-
-  price: {
-    fontSize: 18,
-    marginTop: 6,
-    color: "#FF4500",
-    fontWeight: "600",
-  },
-
-  sectionTitle: {
-    fontSize: 20,
-    marginTop: 20,
-    fontWeight: "700",
-  },
-
-  box: {
-    backgroundColor: "#f3f4f6",
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-
-  listItem: {
-    fontSize: 16,
-    marginBottom: 6,
-  },
-
-  specItem: {
-    fontSize: 15,
-    marginBottom: 4,
-    fontWeight: "600",
   },
 });

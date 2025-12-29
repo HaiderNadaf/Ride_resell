@@ -1,6 +1,7 @@
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { useEffect } from "react";
 
 const tokenCache = {
   getToken: (key: string) => SecureStore.getItemAsync(key),
@@ -10,16 +11,26 @@ const tokenCache = {
 
 function RootNavigator() {
   const { isLoaded, isSignedIn } = useAuth();
+  const router = useRouter();
+
+  // 🔒 GLOBAL AUTH REDIRECT
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (isSignedIn) {
+      router.replace("/(tabs)");
+    } else {
+      router.replace("/auth/sign-in");
+    }
+  }, [isLoaded, isSignedIn]);
 
   if (!isLoaded) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {isSignedIn ? (
-        <Stack.Screen name="(tabs)" />
-      ) : (
-        <Stack.Screen name="auth" />
-      )}
+      {/* ALWAYS declare routes */}
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="auth" />
     </Stack>
   );
 }

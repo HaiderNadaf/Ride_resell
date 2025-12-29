@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUser, useAuth } from "@clerk/clerk-expo";
@@ -16,88 +17,92 @@ export default function ProfileScreen() {
   const { signOut } = useAuth();
   const router = useRouter();
 
+  /* 🔹 Clerk still initializing */
   if (!isLoaded) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>Loading profile…</Text>
       </SafeAreaView>
     );
   }
 
+  /* 🔹 User not logged in */
   if (!isSignedIn) {
     router.replace("/auth/sign-in");
     return null;
   }
 
-  const createdAt = new Date(user.createdAt).toLocaleDateString();
-  const lastSignedIn = new Date(user.lastSignInAt).toLocaleDateString();
+  const createdAt = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString()
+    : "N/A";
+
+  const lastSignedIn = user?.lastSignInAt
+    ? new Date(user.lastSignInAt).toLocaleDateString()
+    : "N/A";
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }} // ✅ FIX
-      >
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* HEADER */}
         <Text style={styles.header}>My Profile</Text>
 
-        {/* USER CARD */}
+        {/* PROFILE CARD */}
         <View style={styles.profileCard}>
           <Image
             source={{
               uri:
-                user.imageUrl ||
-                "https://via.placeholder.com/150/000/fff?text=User",
+                user?.imageUrl ||
+                "https://ui-avatars.com/api/?name=User&background=2563eb&color=fff",
             }}
             style={styles.avatar}
           />
 
-          <Text style={styles.username}>{user.fullName || "No Name"}</Text>
-          <Text style={styles.subText}>@{user.username || "no-username"}</Text>
-          <Text style={styles.email}>
-            {user.primaryEmailAddress?.emailAddress}
-          </Text>
+          <Text style={styles.username}>{user?.fullName || "User"}</Text>
+
+          {user?.primaryEmailAddress?.emailAddress && (
+            <Text style={styles.email}>
+              {user.primaryEmailAddress.emailAddress}
+            </Text>
+          )}
         </View>
 
-        {/* USER DETAILS */}
+        {/* INFO CARD */}
         <View style={styles.infoCard}>
           <InfoRow label="User ID" value={user.id} />
-          <InfoRow label="First Name" value={user.firstName || "—"} />
-          <InfoRow label="Last Name" value={user.lastName || "—"} />
+
+          {user.firstName && (
+            <InfoRow label="First Name" value={user.firstName} />
+          )}
+
+          {user.lastName && <InfoRow label="Last Name" value={user.lastName} />}
+
+          {user.primaryPhoneNumber?.phoneNumber && (
+            <InfoRow
+              label="Phone"
+              value={user.primaryPhoneNumber.phoneNumber}
+            />
+          )}
+
           <InfoRow
-            label="Phone"
-            value={user.primaryPhoneNumber?.phoneNumber || "Not added"}
-          />
-          <InfoRow
-            label="Email Verified"
+            label="Email Status"
             value={
               user.primaryEmailAddress?.verification?.status === "verified"
-                ? "✅ Verified"
-                : "❌ Not Verified"
+                ? "Verified"
+                : "Not Verified"
             }
           />
-          <InfoRow label="Account Created" value={createdAt} />
+
+          <InfoRow label="Joined On" value={createdAt} />
           <InfoRow label="Last Login" value={lastSignedIn} />
         </View>
-
-        {/* ACTION BUTTONS */}
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => router.push("/(tabs)/create")}
-        >
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
 
         {/* LOGOUT */}
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={async () => {
-            try {
-              await signOut();
-              router.replace("/auth/sign-in");
-            } catch (e) {
-              console.log("Logout error:", e);
-            }
+            await signOut();
+            router.replace("/auth/sign-in");
           }}
         >
           <Text style={styles.logoutText}>Logout</Text>
@@ -107,8 +112,8 @@ export default function ProfileScreen() {
   );
 }
 
-/* Reusable row component */
-function InfoRow({ label, value }) {
+/* 🔹 Reusable row */
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{label}</Text>
@@ -117,7 +122,7 @@ function InfoRow({ label, value }) {
   );
 }
 
-/* STYLES */
+/* 🔹 STYLES */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -132,14 +137,14 @@ const styles = StyleSheet.create({
   },
 
   loadingText: {
+    marginTop: 12,
     fontSize: 16,
-    color: "#555",
+    color: "#6b7280",
   },
 
   header: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: "900",
-    color: "#111",
     marginBottom: 20,
   },
 
@@ -147,87 +152,63 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f3f4f6",
     padding: 25,
-    borderRadius: 22,
-    elevation: 3,
+    borderRadius: 20,
     marginBottom: 20,
   },
 
   avatar: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     marginBottom: 10,
   },
 
   username: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#111827",
-  },
-
-  subText: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 2,
   },
 
   email: {
-    fontSize: 16,
+    marginTop: 6,
     color: "#2563eb",
-    marginTop: 5,
+    fontSize: 15,
   },
 
   infoCard: {
     backgroundColor: "#f9fafb",
-    padding: 15,
     borderRadius: 18,
+    padding: 15,
   },
 
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderColor: "#e5e7eb",
-    paddingVertical: 10,
   },
 
   rowLabel: {
     color: "#6b7280",
-    fontSize: 14,
   },
 
   rowValue: {
     fontWeight: "700",
-    color: "#111827",
     maxWidth: "60%",
     textAlign: "right",
   },
 
-  editButton: {
-    marginTop: 25,
-    backgroundColor: "#0ea5e9",
-    paddingVertical: 14,
-    borderRadius: 15,
-  },
-
-  editButtonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "800",
-    fontSize: 16,
-  },
-
   logoutButton: {
-    marginTop: 15,
+    marginTop: 25,
     backgroundColor: "#ef4444",
     paddingVertical: 14,
-    borderRadius: 15,
+    borderRadius: 16,
   },
 
   logoutText: {
-    textAlign: "center",
     color: "#fff",
-    fontSize: 16,
+    textAlign: "center",
     fontWeight: "800",
+    fontSize: 16,
   },
 });

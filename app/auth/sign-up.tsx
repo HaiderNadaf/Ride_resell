@@ -6,11 +6,13 @@ import {
   View,
   StyleSheet,
 } from "react-native";
-import { useSignUp } from "@clerk/clerk-expo";
+import { useSignUp, useUser, useAuth } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 
 export default function SignUpScreen() {
-  const { isLoaded, signUp, setActive } = useSignUp();
+  const { signUp, isLoaded } = useSignUp();
+  const { isSignedIn, isLoaded: userLoaded } = useUser();
+  const { signOut } = useAuth();
   const router = useRouter();
 
   const [emailAddress, setEmailAddress] = React.useState("");
@@ -19,12 +21,24 @@ export default function SignUpScreen() {
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [err, setErr] = React.useState("");
 
-  // Start the sign-up process
+  // 🔐 AUTH GUARD
+  React.useEffect(() => {
+    if (userLoaded && isSignedIn) {
+      router.replace("/(tabs)");
+    }
+  }, [userLoaded, isSignedIn]);
+
+  if (!userLoaded) return null;
+
+  // 🚨 IMPORTANT: SIGN OUT BEFORE SIGN UP
   const onSignUpPress = async () => {
     if (!isLoaded) return;
     setErr("");
 
     try {
+      // ⬅️ THIS FIXES THE BUG
+      await signOut();
+
       await signUp.create({
         emailAddress,
         password,
@@ -36,11 +50,10 @@ export default function SignUpScreen() {
 
       setPendingVerification(true);
     } catch (e: any) {
-      setErr(e.errors?.[0]?.longMessage || "Something went wrong");
+      setErr(e.errors?.[0]?.longMessage || "Sign-up failed");
     }
   };
 
-  // Verify the OTP code
   const onVerifyPress = async () => {
     if (!isLoaded) return;
     setErr("");
@@ -49,7 +62,6 @@ export default function SignUpScreen() {
       const result = await signUp.attemptEmailAddressVerification({ code });
 
       if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
         router.replace("/(tabs)");
       }
     } catch (e: any) {
@@ -57,7 +69,7 @@ export default function SignUpScreen() {
     }
   };
 
-  // ------------------------ VERIFY UI ------------------------
+  // ---------------- VERIFY UI ----------------
   if (pendingVerification) {
     return (
       <View style={styles.container}>
@@ -69,12 +81,11 @@ export default function SignUpScreen() {
         {err ? <Text style={styles.errorBox}>{err}</Text> : null}
 
         <TextInput
-          placeholder="Enter verification code"
-          placeholderTextColor="#9ca3af"
+          placeholder="Verification code"
           style={styles.input}
+          keyboardType="number-pad"
           value={code}
           onChangeText={setCode}
-          keyboardType="number-pad"
         />
 
         <TouchableOpacity style={styles.button} onPress={onVerifyPress}>
@@ -84,7 +95,7 @@ export default function SignUpScreen() {
     );
   }
 
-  // ------------------------ SIGN UP UI ------------------------
+  // ---------------- SIGN UP UI ----------------
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
@@ -94,16 +105,14 @@ export default function SignUpScreen() {
 
       <TextInput
         placeholder="Email"
-        placeholderTextColor="#9ca3af"
+        autoCapitalize="none"
         style={styles.input}
         value={emailAddress}
         onChangeText={setEmailAddress}
-        autoCapitalize="none"
       />
 
       <TextInput
         placeholder="Password"
-        placeholderTextColor="#9ca3af"
         secureTextEntry
         style={styles.input}
         value={password}
