@@ -182,6 +182,7 @@ export default function CreateProduct() {
               key={opt}
               label={opt.replace("-", " ").toUpperCase()}
               value={opt}
+              color="#000000"
             />
           ))}
         </Picker>
@@ -223,6 +224,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: "#fff",
     borderWidth: 1,
+    color: "#000000",
     borderColor: "#e2e8f0",
     borderRadius: 12,
     padding: 16,
@@ -232,6 +234,7 @@ const styles = StyleSheet.create({
   pickerWrapper: {
     backgroundColor: "#fff",
     borderRadius: 12,
+    color: "#000000",
     borderWidth: 1,
     borderColor: "#e2e8f0",
     marginBottom: 20,
