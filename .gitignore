@@ -5,6 +5,10 @@ node_modules/
 
 # Expo
 .expo/
+.env
+.env.local
+.env.development
+.env.production
 dist/
 web-build/
 expo-env.d.ts
