@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+# Dekho Gadi
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Dekho Gadi is a vehicle marketplace app built with Expo, React Native, Expo Router, Clerk, and a custom Node/Express backend. It is designed for buying, selling, and browsing vehicles with an India-first flow.
 
-## Get started
+## What The App Does
 
-1. Install dependencies
+- Sign in and sign up with Clerk
+- Create and edit vehicle listings
+- Upload a vehicle photo
+- Generate listing details like overview, summary, and mileage assistance
+- Browse listings in a search tab with:
+  - vehicle type filters
+  - brand filters
+  - fuel and transmission filters
+  - draggable price range slider
+- View listings in a two-column card grid
+- Filter location by:
+  - State
+  - District
+  - Taluk / Area
+  - Village
+- Show profile listings for the signed-in seller
+- Send notifications when a new post is created
+- Open a notifications inbox from the bell icon
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- Expo / React Native
+- Expo Router
+- Clerk authentication
+- Expo Notifications
+- React Native Picker
+- Custom backend API
 
-   ```bash
-   npx expo start
-   ```
+## Main Screens
 
-In the output, you'll find options to open the app in a
+- Auth screens: sign in, sign up, verify email
+- Home tab
+- Search tab
+- Create listing tab
+- Profile tab
+- Details page
+- Notifications page
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Environment Variables
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Create a `.env` file in this folder with the values your app needs:
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```env
+EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+EXPO_PUBLIC_BASE_URL=http://your-backend-url
+EXPO_PUBLIC_LOCATION_API_BASE_URL=https://your-location-api-url
+NEXT_PUBLIC_API_URL_location=https://your-location-api-url
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Run The App
 
-## Learn more
+```bash
+npm install
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Useful scripts:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run android
+npm run ios
+npm run web
+npm run lint
+```
 
-## Join the community
+## Project Structure
 
-Join our community of developers creating universal apps.
+- `app/` - Expo Router screens
+- `assets/` - logos, splash image, and app media
+- `components/` - shared UI components
+- `lib/` - marketplace and location helpers
+- `utils/` - shared app utilities
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Notes
+
+- The app uses file-based routing.
+- The backend lives separately in the parent project folder.
+- Notifications and location dropdowns rely on your backend APIs being reachable.

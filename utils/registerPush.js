@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
+import Constants from "expo-constants";
 
 export async function registerForPushToken() {
   if (!Device.isDevice) {
@@ -21,7 +22,11 @@ export async function registerForPushToken() {
     return null;
   }
 
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
+  const projectId =
+    Constants.expoConfig?.extra?.eas?.projectId ||
+    Constants.easConfig?.projectId;
+
+  const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
 
   console.log("✅ PUSH TOKEN:", token);
   return token;
