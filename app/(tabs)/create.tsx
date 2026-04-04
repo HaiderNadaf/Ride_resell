@@ -43,7 +43,9 @@ const brandOptions = [
   { label: "BMW", value: "BMW" },
   { label: "Suzuki", value: "Suzuki" },
   { label: "Kia", value: "Kia" },
+  { label: "Hyundai", value: "Hyundai" },
   { label: "Toyota", value: "Toyota" },
+  { label: "Maruti Suzuki", value: "Maruti Suzuki" },
   { label: "Ather Energy", value: "Ather Energy" },
   { label: "Oben Electric", value: "Oben Electric" },
   { label: "Honda", value: "Honda" },
@@ -51,6 +53,16 @@ const brandOptions = [
   { label: "Mercedes", value: "Mercedes" },
   { label: "Audi", value: "Audi" },
   { label: "Ford", value: "Ford" },
+  { label: "Tata", value: "Tata" },
+  { label: "Mahindra", value: "Mahindra" },
+  { label: "MG", value: "MG" },
+  { label: "Tesla", value: "Tesla" },
+  { label: "Jeep", value: "Jeep" },
+  { label: "Skoda", value: "Skoda" },
+  { label: "Renault", value: "Renault" },
+  { label: "Nissan", value: "Nissan" },
+  { label: "Volvo", value: "Volvo" },
+  { label: "Porsche", value: "Porsche" },
   { label: "Other", value: "Other" },
 ];
 
@@ -71,10 +83,21 @@ const modelOptionsByBrand: Record<string, { label: string; value: string }[]> = 
     { label: "EV6", value: "EV6" },
     { label: "Seltos", value: "Seltos" },
   ],
+  Hyundai: [
+    { label: "Select model", value: "" },
+    { label: "Creta", value: "Creta" },
+    { label: "i20", value: "i20" },
+  ],
   Toyota: [
     { label: "Select model", value: "" },
     { label: "Fortuner", value: "Fortuner" },
     { label: "Innova", value: "Innova" },
+  ],
+  "Maruti Suzuki": [
+    { label: "Select model", value: "" },
+    { label: "Swift", value: "Swift" },
+    { label: "Baleno", value: "Baleno" },
+    { label: "Brezza", value: "Brezza" },
   ],
   "Ather Energy": [
     { label: "Select model", value: "" },
@@ -108,6 +131,56 @@ const modelOptionsByBrand: Record<string, { label: string; value: string }[]> = 
     { label: "Select model", value: "" },
     { label: "Mustang GT500", value: "Mustang GT500" },
     { label: "Everest", value: "Everest" },
+  ],
+  Tata: [
+    { label: "Select model", value: "" },
+    { label: "Nexon", value: "Nexon" },
+    { label: "Harrier", value: "Harrier" },
+  ],
+  Mahindra: [
+    { label: "Select model", value: "" },
+    { label: "Scorpio N", value: "Scorpio N" },
+    { label: "XUV700", value: "XUV700" },
+  ],
+  MG: [
+    { label: "Select model", value: "" },
+    { label: "Comet EV", value: "Comet EV" },
+    { label: "Hector", value: "Hector" },
+  ],
+  Tesla: [
+    { label: "Select model", value: "" },
+    { label: "Model 3", value: "Model 3" },
+    { label: "Model Y", value: "Model Y" },
+  ],
+  Jeep: [
+    { label: "Select model", value: "" },
+    { label: "Compass", value: "Compass" },
+    { label: "Wrangler", value: "Wrangler" },
+  ],
+  Skoda: [
+    { label: "Select model", value: "" },
+    { label: "Slavia", value: "Slavia" },
+    { label: "Kushaq", value: "Kushaq" },
+  ],
+  Renault: [
+    { label: "Select model", value: "" },
+    { label: "Kiger", value: "Kiger" },
+    { label: "Triber", value: "Triber" },
+  ],
+  Nissan: [
+    { label: "Select model", value: "" },
+    { label: "Magnite", value: "Magnite" },
+    { label: "X-Trail", value: "X-Trail" },
+  ],
+  Volvo: [
+    { label: "Select model", value: "" },
+    { label: "XC40", value: "XC40" },
+    { label: "XC90", value: "XC90" },
+  ],
+  Porsche: [
+    { label: "Select model", value: "" },
+    { label: "911 Carrera", value: "911 Carrera" },
+    { label: "Macan", value: "Macan" },
   ],
   Other: [{ label: "Type model", value: "Other" }],
 };
@@ -378,8 +451,11 @@ export default function CreateListingScreen() {
   };
 
   const submit = async () => {
-    if (!selectedBrand || !selectedModel || !price || !vehicleType) {
-      Alert.alert("Missing fields", "Please complete the required details.");
+    if (!imageUri || !title.trim() || !price || !vehicleType || !year.trim()) {
+      Alert.alert(
+        "Missing required fields",
+        "Please fill Image, Listing Title, Price, Vehicle Type, and Year."
+      );
       return;
     }
 
@@ -526,26 +602,29 @@ export default function CreateListingScreen() {
       ) : null}
 
       <Text style={styles.sectionTitle}>Listing Details</Text>
-      <Field label="Listing Title" value={title} onChangeText={setTitle} placeholder="2021 BMW M4 Competition" />
+      <Text style={styles.sectionHint}>
+        Only image, title, price, vehicle type, and year are required. Brand, model, and the rest are optional.
+      </Text>
+      <Field label="Listing Title *" value={title} onChangeText={setTitle} placeholder="2021 BMW M4 Competition" />
       <Field label="Price (\u20B9)" value={price} onChangeText={setPrice} placeholder="72,000" keyboardType="numeric" />
 
       <View style={styles.twoCol}>
         <View style={styles.halfField}>
           <PickerField
-            label="Vehicle Type"
+            label="Vehicle Type *"
             value={vehicleType}
             onValueChange={setVehicleType}
             options={vehicleTypeOptions}
           />
         </View>
         <View style={styles.halfField}>
-          <Field label="Year" value={year} onChangeText={setYear} placeholder="2021" keyboardType="numeric" />
+          <Field label="Year *" value={year} onChangeText={setYear} placeholder="2021" keyboardType="numeric" />
         </View>
       </View>
       <View style={styles.twoCol}>
         <View style={styles.halfField}>
           <PickerField
-            label="Brand"
+            label="Brand (Optional)"
             value={brand}
             onValueChange={(value) => {
               setBrand(value);
@@ -570,7 +649,7 @@ export default function CreateListingScreen() {
         </View>
         <View style={styles.halfField}>
           <PickerField
-            label="Model"
+            label="Model (Optional)"
             value={model}
             onValueChange={(value) => {
               setModel(value);
@@ -807,6 +886,7 @@ const styles = {
   progressFill: { width: "100%", height: "100%", borderRadius: 999, backgroundColor: "#2F64FF" },
   stepCount: { color: "#667085", fontWeight: "700" as const, marginTop: 24 },
   sectionTitle: { fontSize: 17, fontWeight: "800" as const, color: "#101828", marginBottom: 12, marginTop: 6 },
+  sectionHint: { color: "#667085", fontSize: 12, lineHeight: 18, marginBottom: 14 },
   uploadBox: {
     borderWidth: 1.5,
     borderStyle: "dashed",
