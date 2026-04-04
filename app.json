@@ -29,7 +29,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/signIn-logo.png      "image": "./assets/images/logos.png""
+      "favicon": "./assets/images/signIn-logo.png"
     },
     "plugins": [
       "expo-router",
