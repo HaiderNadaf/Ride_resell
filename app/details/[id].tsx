@@ -87,7 +87,17 @@ export default function DetailsScreen() {
         contentContainerStyle={styles.content}
       >
         <View style={styles.heroWrap}>
-          <Image source={{ uri: product.image }} style={styles.heroImage} />
+          <Image
+            source={{ uri: product.image }}
+            style={styles.heroImage}
+            onError={(error) => {
+              console.warn(
+                "Failed to load product image:",
+                product.image,
+                error,
+              );
+            }}
+          />
           <View style={styles.heroOverlay}>
             <TouchableOpacity
               style={styles.navButton}

@@ -59,8 +59,18 @@ export type ProductInput = Partial<Product> & {
   category: string;
 };
 
-const BASE_URL = (process.env.EXPO_PUBLIC_BASE_URL || "").replace(/\/$/, "");
-const API = (path: string) => `${BASE_URL}${path}`;
+const BASE_URL = (
+  process.env.EXPO_PUBLIC_BASE_URL || "https://ride-rel-backend.onrender.com"
+).replace(/\/$/, "");
+
+if (!BASE_URL || BASE_URL === "") {
+  console.error("⚠️ BASE_URL not configured - API calls will fail");
+}
+
+const API = (path: string) => {
+  if (!BASE_URL) throw new Error("API_URL not configured");
+  return `${BASE_URL}${path}`;
+};
 
 export type ProductFilters = {
   search?: string;
@@ -140,7 +150,9 @@ export const normalizeProduct = (product: Partial<Product> = {}): Product => ({
   transmission: product.transmission || "Automatic",
   location:
     product.location ||
-    [product.village, product.taluk, product.district, product.state].filter(Boolean).join(", ") ||
+    [product.village, product.taluk, product.district, product.state]
+      .filter(Boolean)
+      .join(", ") ||
     "Bengaluru, Karnataka",
   state: product.state || "Karnataka",
   district: product.district || "Bengaluru Urban",
@@ -161,18 +173,26 @@ export const normalizeProduct = (product: Partial<Product> = {}): Product => ({
     product.aiSummary ||
     "Well-maintained vehicle with a clean service history and polished presentation.",
   estimatedMileage:
-    product.estimatedMileage || (product.mileage ? formatMileage(product.mileage) : "4,200 mi"),
+    product.estimatedMileage ||
+    (product.mileage ? formatMileage(product.mileage) : "4,200 mi"),
   estimatedCondition: product.estimatedCondition || "Excellent",
-  estimatedPriceBand: product.estimatedPriceBand || formatPriceBand(product.price),
-  keySpecifications:
-    product.keySpecifications ||
-    [formatYear(product.year), formatMileage(product.mileage), product.fuelType || "Petrol", product.transmission || "Automatic"],
-  topFeatures:
-    product.topFeatures ||
-    ["Full service history", "Clean interior", "Low ownership"],
-  standOutFeatures:
-    product.standOutFeatures ||
-    ["Excellent condition", "Ready for immediate sale"],
+  estimatedPriceBand:
+    product.estimatedPriceBand || formatPriceBand(product.price),
+  keySpecifications: product.keySpecifications || [
+    formatYear(product.year),
+    formatMileage(product.mileage),
+    product.fuelType || "Petrol",
+    product.transmission || "Automatic",
+  ],
+  topFeatures: product.topFeatures || [
+    "Full service history",
+    "Clean interior",
+    "Low ownership",
+  ],
+  standOutFeatures: product.standOutFeatures || [
+    "Excellent condition",
+    "Ready for immediate sale",
+  ],
   listingTitle:
     product.listingTitle ||
     `${product.year || 2023} ${product.brand || "BMW"} ${product.model || "M4"}`,
@@ -263,7 +283,8 @@ export const sampleProducts: Product[] = [
     inquiries: 6,
     sellerName: "Mike D.",
     sellerSince: "Member since 2022",
-    aiSummary: "Track-focused superbike with aggressive styling and a clean title.",
+    aiSummary:
+      "Track-focused superbike with aggressive styling and a clean title.",
   }),
   normalizeProduct({
     _id: "demo-4",
@@ -289,7 +310,8 @@ export const sampleProducts: Product[] = [
     inquiries: 2,
     sellerName: "Alex P.",
     sellerSince: "Member since 2020",
-    aiSummary: "Lightweight naked bike with quick handling and fresh maintenance.",
+    aiSummary:
+      "Lightweight naked bike with quick handling and fresh maintenance.",
   }),
   normalizeProduct({
     _id: "demo-5",
@@ -315,7 +337,8 @@ export const sampleProducts: Product[] = [
     inquiries: 2,
     sellerName: "Jordan S.",
     sellerSince: "Member since 2019",
-    aiSummary: "Muscle car with strong presence, sharp styling, and clean ownership records.",
+    aiSummary:
+      "Muscle car with strong presence, sharp styling, and clean ownership records.",
   }),
   normalizeProduct({
     _id: "demo-6",
@@ -348,17 +371,23 @@ export const sampleProducts: Product[] = [
   }),
 ];
 
-export async function fetchProducts(filters: ProductFilters = {}): Promise<Product[]> {
+export async function fetchProducts(
+  filters: ProductFilters = {},
+): Promise<Product[]> {
   try {
     const params = new URLSearchParams();
 
     if (filters.search) params.set("search", filters.search);
-    if (filters.category && filters.category !== "All") params.set("category", filters.category);
-    if (filters.minPrice && filters.minPrice !== "0") params.set("minPrice", filters.minPrice);
+    if (filters.category && filters.category !== "All")
+      params.set("category", filters.category);
+    if (filters.minPrice && filters.minPrice !== "0")
+      params.set("minPrice", filters.minPrice);
     if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
     if (filters.brand?.length) params.set("brand", filters.brand.join(","));
-    if (filters.fuelType?.length) params.set("fuelType", filters.fuelType.join(","));
-    if (filters.transmission?.length) params.set("transmission", filters.transmission.join(","));
+    if (filters.fuelType?.length)
+      params.set("fuelType", filters.fuelType.join(","));
+    if (filters.transmission?.length)
+      params.set("transmission", filters.transmission.join(","));
     if (filters.location) params.set("location", filters.location);
     if (filters.mileageMax) params.set("mileageMax", filters.mileageMax);
     if (filters.featured) params.set("featured", "true");
@@ -366,7 +395,9 @@ export async function fetchProducts(filters: ProductFilters = {}): Promise<Produ
     if (filters.sellerEmail) params.set("sellerEmail", filters.sellerEmail);
 
     const query = params.toString();
-    const response = await fetch(API(`/api/products${query ? `?${query}` : ""}`));
+    const response = await fetch(
+      API(`/api/products${query ? `?${query}` : ""}`),
+    );
     const json = await response.json();
     const data = Array.isArray(json?.data) ? json.data : [];
     const hasFilters = Object.keys(filters).some((key) => {
@@ -384,10 +415,16 @@ export async function fetchProducts(filters: ProductFilters = {}): Promise<Produ
 export async function fetchProductById(id: string): Promise<Product | null> {
   try {
     const response = await fetch(API(`/api/products/${id}`));
+
+    if (!response.ok) {
+      console.error(`Product fetch failed: ${response.status}`);
+      return sampleProducts.find((item) => item._id === id) || null;
+    }
+
     const json = await response.json();
-    if (!response.ok) return null;
     return normalizeProduct(json?.data || {});
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch product:", error);
     return sampleProducts.find((item) => item._id === id) || null;
   }
 }
@@ -406,11 +443,17 @@ export async function createProduct(formData: FormData) {
   return json?.data;
 }
 
-export async function updateProduct(id: string, body: FormData | Record<string, string>) {
+export async function updateProduct(
+  id: string,
+  body: FormData | Record<string, string>,
+) {
   const response = await fetch(API(`/api/products/${id}`), {
     method: "PATCH",
     body: body instanceof FormData ? body : JSON.stringify(body),
-    headers: body instanceof FormData ? undefined : { "Content-Type": "application/json" },
+    headers:
+      body instanceof FormData
+        ? undefined
+        : { "Content-Type": "application/json" },
   });
 
   const json = await response.json();

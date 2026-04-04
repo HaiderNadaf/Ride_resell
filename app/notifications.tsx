@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Bell, ChevronRight } from "lucide-react-native";
@@ -31,7 +38,8 @@ export default function NotificationsScreen() {
 
   const unreadCount = useMemo(() => {
     if (!user?.id) return items.length;
-    return items.filter((item) => !(item.readBy || []).includes(user.id)).length;
+    return items.filter((item) => !(item.readBy || []).includes(user.id))
+      .length;
   }, [items, user?.id]);
 
   const handleOpen = async (item: AppNotification) => {
@@ -44,8 +52,8 @@ export default function NotificationsScreen() {
                 ...entry,
                 readBy: Array.from(new Set([...(entry.readBy || []), user.id])),
               }
-            : entry
-        )
+            : entry,
+        ),
       );
     }
 
@@ -64,7 +72,10 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <View style={styles.iconWrap}>
@@ -89,7 +100,17 @@ export default function NotificationsScreen() {
                   style={[styles.card, unread && styles.cardUnread]}
                 >
                   {item.productImage ? (
-                    <Image source={{ uri: item.productImage }} style={styles.thumb} />
+                    <Image
+                      source={{ uri: item.productImage }}
+                      style={styles.thumb}
+                      onError={(error) => {
+                        console.warn(
+                          "Failed to load notification image:",
+                          item.productImage,
+                          error,
+                        );
+                      }}
+                    />
                   ) : (
                     <View style={styles.thumbFallback}>
                       <Bell size={18} color="#98A2B3" />
@@ -115,7 +136,8 @@ export default function NotificationsScreen() {
           <View style={styles.empty}>
             <Text style={styles.emptyTitle}>No notifications yet</Text>
             <Text style={styles.emptyText}>
-              New listings will appear here and also push to devices that allowed notifications.
+              New listings will appear here and also push to devices that
+              allowed notifications.
             </Text>
           </View>
         )}
@@ -127,7 +149,11 @@ export default function NotificationsScreen() {
 const styles = {
   screen: { flex: 1, backgroundColor: "#F6F7FB" as const },
   content: { paddingBottom: 120 },
-  center: { flex: 1, alignItems: "center" as const, justifyContent: "center" as const },
+  center: {
+    flex: 1,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+  },
   header: {
     paddingHorizontal: 16,
     paddingTop: 12,

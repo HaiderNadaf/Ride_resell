@@ -28,12 +28,15 @@ export default function ProfileScreen() {
   const { signOut } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>("Active");
+  const [selectedTab, setSelectedTab] =
+    useState<(typeof tabs)[number]>("Active");
   const userHandle =
     user?.fullName ||
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
     user?.primaryEmailAddress?.emailAddress?.split("@")[0] ||
-    "";
+    "Seller";
+
+  const normalizedHandle = (userHandle || "").trim().toLowerCase();
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) return;
@@ -46,12 +49,12 @@ export default function ProfileScreen() {
         if (!mounted) return;
 
         const email = user.primaryEmailAddress?.emailAddress || "";
-        const normalizedHandle = userHandle.trim().toLowerCase();
 
         const ownedItems = items.filter((item) => {
           const sellerName = (item.sellerName || "").trim().toLowerCase();
           const sellerId = (item as any).sellerId?.trim?.() || "";
-          const sellerEmail = (item as any).sellerEmail?.trim?.().toLowerCase() || "";
+          const sellerEmail =
+            (item as any).sellerEmail?.trim?.().toLowerCase() || "";
 
           return (
             sellerId === user.id ||
@@ -114,40 +117,68 @@ export default function ProfileScreen() {
   }
 
   const handleDelete = async (item: Product) => {
-    Alert.alert("Delete listing?", "This will remove the listing from the marketplace.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteProduct(item._id);
-            setProducts((current) => current.filter((entry) => entry._id !== item._id));
-          } catch (error: any) {
-            Alert.alert("Delete failed", error?.message || "Unable to delete listing.");
-          }
+    Alert.alert(
+      "Delete listing?",
+      "This will remove the listing from the marketplace.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteProduct(item._id);
+              setProducts((current) =>
+                current.filter((entry) => entry._id !== item._id),
+              );
+            } catch (error: any) {
+              Alert.alert(
+                "Delete failed",
+                error?.message || "Unable to delete listing.",
+              );
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   return (
     <SafeAreaView style={styles.screen}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.header}>
           <View style={styles.headerTopRow}>
             <View style={styles.userRow}>
-              <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
+              <Image
+                source={{ uri: userInfo.avatar }}
+                style={styles.avatar}
+                onError={(error) => {
+                  console.warn(
+                    "Failed to load avatar:",
+                    userInfo.avatar,
+                    error,
+                  );
+                }}
+              />
               <View>
                 <Text style={styles.helloText}>{userInfo.name}</Text>
                 <Text style={styles.subText}>Seller</Text>
               </View>
             </View>
             <View style={styles.headerActions}>
-              <TouchableOpacity style={styles.headerIcon} onPress={() => router.push("/notifications")}>
+              <TouchableOpacity
+                style={styles.headerIcon}
+                onPress={() => router.push("/notifications")}
+              >
                 <Bell size={18} color="#fff" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.headerIcon} onPress={() => router.push("/create")}>
+              <TouchableOpacity
+                style={styles.headerIcon}
+                onPress={() => router.push("/create")}
+              >
                 <Settings size={18} color="#fff" />
               </TouchableOpacity>
             </View>
@@ -174,8 +205,16 @@ export default function ProfileScreen() {
                 onPress={() => setSelectedTab(tab)}
                 style={styles.tabItem}
               >
-                <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{tab}</Text>
-                {active ? <View style={styles.tabUnderline} /> : <View style={styles.tabPlaceholder} />}
+                <Text
+                  style={[styles.tabLabel, active && styles.tabLabelActive]}
+                >
+                  {tab}
+                </Text>
+                {active ? (
+                  <View style={styles.tabUnderline} />
+                ) : (
+                  <View style={styles.tabPlaceholder} />
+                )}
               </TouchableOpacity>
             );
           })}
@@ -190,9 +229,12 @@ export default function ProfileScreen() {
                   <View style={styles.listTopRow}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.listTitle} numberOfLines={1}>
-                        {item.listingTitle || `${item.year} ${item.brand} ${item.model}`}
+                        {item.listingTitle ||
+                          `${item.year} ${item.brand} ${item.model}`}
                       </Text>
-                      <Text style={styles.listPrice}>{formatMoney(item.price)}</Text>
+                      <Text style={styles.listPrice}>
+                        {formatMoney(item.price)}
+                      </Text>
                     </View>
                     <View style={styles.liveBadge}>
                       <Text style={styles.liveBadgeText}>
@@ -202,19 +244,28 @@ export default function ProfileScreen() {
                   </View>
 
                   <Text style={styles.listStats}>
-                    {item.views || 0} views   {item.saves || 0} saves   {item.inquiries || 0} inquiries
+                    {item.views || 0} views {item.saves || 0} saves{" "}
+                    {item.inquiries || 0} inquiries
                   </Text>
 
                   <View style={styles.actionRow}>
                     <TouchableOpacity
                       style={styles.actionButton}
-                      onPress={() => router.push({ pathname: "/create", params: { id: item._id } } as any)}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/create",
+                          params: { id: item._id },
+                        } as any)
+                      }
                     >
                       <Edit3 size={14} color="#667085" />
                       <Text style={styles.actionText}>Edit</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDelete(item)}
+                    >
                       <Trash2 size={14} color="#D92D20" />
                       <Text style={styles.deleteText}>Delete</Text>
                     </TouchableOpacity>
@@ -226,7 +277,8 @@ export default function ProfileScreen() {
             <View style={styles.emptyState}>
               <Text style={styles.emptyTitle}>No listings yet</Text>
               <Text style={styles.emptyText}>
-                Create your first listing and it will appear here under your account.
+                Create your first listing and it will appear here under your
+                account.
               </Text>
             </View>
           )}
@@ -235,13 +287,23 @@ export default function ProfileScreen() {
         <Text style={styles.sectionTitle}>Performance Insights</Text>
         <View style={styles.insightCard}>
           <Text style={styles.insightText}>
-            Your listings outperform <Text style={styles.highlight}>78%</Text> of similar vehicles
+            Your listings outperform <Text style={styles.highlight}>78%</Text>{" "}
+            of similar vehicles
           </Text>
 
           <View style={styles.insightGrid}>
-            <Metric label="Views" value={`${products.reduce((sum, item) => sum + (item.views || 0), 0)}`} />
-            <Metric label="Saves" value={`${products.reduce((sum, item) => sum + (item.saves || 0), 0)}`} />
-            <Metric label="Inquiries" value={`${products.reduce((sum, item) => sum + (item.inquiries || 0), 0)}`} />
+            <Metric
+              label="Views"
+              value={`${products.reduce((sum, item) => sum + (item.views || 0), 0)}`}
+            />
+            <Metric
+              label="Saves"
+              value={`${products.reduce((sum, item) => sum + (item.saves || 0), 0)}`}
+            />
+            <Metric
+              label="Inquiries"
+              value={`${products.reduce((sum, item) => sum + (item.inquiries || 0), 0)}`}
+            />
           </View>
 
           <View style={styles.responseRow}>
@@ -285,7 +347,11 @@ function Metric({ label, value }: { label: string; value: string }) {
 const styles = {
   screen: { flex: 1, backgroundColor: "#F6F7FB" as const },
   content: { paddingBottom: 120 },
-  center: { flex: 1, alignItems: "center" as const, justifyContent: "center" as const },
+  center: {
+    flex: 1,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+  },
   header: {
     backgroundColor: "#2F64FF",
     paddingHorizontal: 16,
@@ -352,7 +418,11 @@ const styles = {
     paddingHorizontal: 12,
   },
   statValue: { color: "#fff", fontSize: 24, fontWeight: "900" as const },
-  statLabel: { color: "rgba(255,255,255,0.86)", marginTop: 4, fontWeight: "600" as const },
+  statLabel: {
+    color: "rgba(255,255,255,0.86)",
+    marginTop: 4,
+    fontWeight: "600" as const,
+  },
   tabRow: {
     flexDirection: "row" as const,
     paddingHorizontal: 16,
@@ -400,7 +470,12 @@ const styles = {
     alignItems: "flex-start" as const,
   },
   listTitle: { fontSize: 16, fontWeight: "900" as const, color: "#101828" },
-  listPrice: { marginTop: 4, fontSize: 17, fontWeight: "900" as const, color: "#2F64FF" },
+  listPrice: {
+    marginTop: 4,
+    fontSize: 17,
+    fontWeight: "900" as const,
+    color: "#2F64FF",
+  },
   liveBadge: {
     backgroundColor: "#E7F8EC",
     paddingHorizontal: 10,
@@ -445,7 +520,12 @@ const styles = {
     shadowOffset: { width: 0, height: 8 },
     elevation: 2,
   },
-  insightText: { fontSize: 16, fontWeight: "800" as const, color: "#101828", lineHeight: 22 },
+  insightText: {
+    fontSize: 16,
+    fontWeight: "800" as const,
+    color: "#101828",
+    lineHeight: 22,
+  },
   highlight: { color: "#2F64FF" },
   insightGrid: {
     flexDirection: "row" as const,
@@ -459,7 +539,12 @@ const styles = {
     padding: 12,
   },
   metricLabel: { fontSize: 12, color: "#667085", fontWeight: "700" as const },
-  metricValue: { marginTop: 8, fontSize: 18, fontWeight: "900" as const, color: "#101828" },
+  metricValue: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: "900" as const,
+    color: "#101828",
+  },
   responseRow: {
     flexDirection: "row" as const,
     justifyContent: "space-between" as const,
@@ -475,7 +560,12 @@ const styles = {
     alignItems: "center" as const,
   },
   emptyTitle: { fontSize: 16, fontWeight: "900" as const, color: "#101828" },
-  emptyText: { marginTop: 8, color: "#667085", textAlign: "center" as const, lineHeight: 20 },
+  emptyText: {
+    marginTop: 8,
+    color: "#667085",
+    textAlign: "center" as const,
+    lineHeight: 20,
+  },
   logoutButton: {
     marginHorizontal: 16,
     marginTop: 18,
