@@ -11,7 +11,13 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Heart, ArrowLeft, MessageSquare, PhoneCall, BadgeCheck } from "lucide-react-native";
+import {
+  Heart,
+  ArrowLeft,
+  MessageSquare,
+  PhoneCall,
+  BadgeCheck,
+} from "lucide-react-native";
 import {
   fetchProductById,
   formatMoney,
@@ -76,11 +82,17 @@ export default function DetailsScreen() {
 
   return (
     <View style={styles.screen}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.heroWrap}>
           <Image source={{ uri: product.image }} style={styles.heroImage} />
           <View style={styles.heroOverlay}>
-            <TouchableOpacity style={styles.navButton} onPress={() => router.back()}>
+            <TouchableOpacity
+              style={styles.navButton}
+              onPress={() => router.back()}
+            >
               <ArrowLeft size={18} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.navButton} onPress={handleShare}>
@@ -95,8 +107,13 @@ export default function DetailsScreen() {
         </View>
 
         <View style={styles.titleCard}>
-          <Text style={styles.title}>{product.year} {product.brand} {product.model}</Text>
-          <Text style={styles.subtitle}>{product.listingTitle || `${product.year} ${product.brand} ${product.model}`}</Text>
+          <Text style={styles.title}>
+            {product.year} {product.brand} {product.model}
+          </Text>
+          <Text style={styles.subtitle}>
+            {product.listingTitle ||
+              `${product.year} ${product.brand} ${product.model}`}
+          </Text>
           <Text style={styles.price}>{formatMoney(product.price)}</Text>
           <View style={styles.chipRow}>
             <Chip label={`${product.year || "2023"}`} />
@@ -110,7 +127,12 @@ export default function DetailsScreen() {
           <Text style={styles.aiHeader}>AI Analysis</Text>
           <Text style={styles.aiText}>{product.aiSummary || product.text}</Text>
           <View style={styles.analysisFooter}>
-            <Chip label={product.estimatedCondition || product.condition || "Excellent"} filled />
+            <Chip
+              label={
+                product.estimatedCondition || product.condition || "Excellent"
+              }
+              filled
+            />
             <Text style={styles.analysisLink}>Edit</Text>
           </View>
         </View>
@@ -131,18 +153,22 @@ export default function DetailsScreen() {
             <View style={styles.sellerInfo}>
               <Image
                 source={{
-                  uri:
-                    product.sellerAvatar ||
-                    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80",
+                  uri: product.sellerAvatar || "",
                 }}
                 style={styles.sellerAvatar}
               />
               <View>
                 <View style={styles.sellerNameRow}>
-                  <Text style={styles.sellerName}>{product.sellerName || "James K."}</Text>
-                  {product.sellerVerified !== false ? <BadgeCheck size={14} color="#2F64FF" /> : null}
+                  <Text style={styles.sellerName}>
+                    {product.sellerName || "James K."}
+                  </Text>
+                  {product.sellerVerified !== false ? (
+                    <BadgeCheck size={14} color="#2F64FF" />
+                  ) : null}
                 </View>
-                <Text style={styles.sellerSince}>{product.sellerSince || "Member since 2021"}</Text>
+                <Text style={styles.sellerSince}>
+                  {product.sellerSince || "Member since 2021"}
+                </Text>
               </View>
             </View>
             <View style={styles.ratingPill}>
@@ -151,18 +177,42 @@ export default function DetailsScreen() {
           </View>
 
           <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.secondaryButton} onPress={() => Alert.alert("Call Seller", "Call action can be wired to your CRM or phone link.")}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() =>
+                Alert.alert(
+                  "Call Seller",
+                  "Call action can be wired to your CRM or phone link.",
+                )
+              }
+            >
               <PhoneCall size={16} color="#101828" />
               <Text style={styles.secondaryButtonText}>Call Seller</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => Alert.alert("Chat Now", "Chat integration can be connected next.")}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() =>
+                Alert.alert(
+                  "Chat Now",
+                  "Chat integration can be connected next.",
+                )
+              }
+            >
               <MessageSquare size={16} color="#fff" />
               <Text style={styles.primaryButtonText}>Chat Now</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.offerButton} onPress={() => Alert.alert("Make Offer", "Offer flow can be connected to backend next.")}>
+        <TouchableOpacity
+          style={styles.offerButton}
+          onPress={() =>
+            Alert.alert(
+              "Make Offer",
+              "Offer flow can be connected to backend next.",
+            )
+          }
+        >
           <Text style={styles.offerText}>Make Offer</Text>
         </TouchableOpacity>
 
@@ -175,7 +225,9 @@ export default function DetailsScreen() {
 function Chip({ label, filled }: { label: string; filled?: boolean }) {
   return (
     <View style={[styles.chip, filled && styles.chipFilled]}>
-      <Text style={[styles.chipText, filled && styles.chipTextFilled]}>{label}</Text>
+      <Text style={[styles.chipText, filled && styles.chipTextFilled]}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -183,7 +235,11 @@ function Chip({ label, filled }: { label: string; filled?: boolean }) {
 const styles = {
   screen: { flex: 1, backgroundColor: "#F6F7FB" as const },
   content: { paddingBottom: 24 },
-  center: { flex: 1, justifyContent: "center" as const, alignItems: "center" as const },
+  center: {
+    flex: 1,
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
+  },
   heroWrap: { position: "relative" as const },
   heroImage: { width: "100%", height: 300 },
   heroOverlay: {
@@ -236,8 +292,18 @@ const styles = {
     elevation: 3,
   },
   title: { fontSize: 22, fontWeight: "900" as const, color: "#101828" },
-  subtitle: { marginTop: 4, color: "#667085", fontSize: 13, fontWeight: "700" as const },
-  price: { marginTop: 8, color: "#2F64FF", fontSize: 26, fontWeight: "900" as const },
+  subtitle: {
+    marginTop: 4,
+    color: "#667085",
+    fontSize: 13,
+    fontWeight: "700" as const,
+  },
+  price: {
+    marginTop: 8,
+    color: "#2F64FF",
+    fontSize: 26,
+    fontWeight: "900" as const,
+  },
   chipRow: {
     flexDirection: "row" as const,
     flexWrap: "wrap" as const,
@@ -260,7 +326,12 @@ const styles = {
     borderRadius: 20,
     padding: 16,
   },
-  aiHeader: { color: "#2F64FF", fontSize: 14, fontWeight: "900" as const, marginBottom: 10 },
+  aiHeader: {
+    color: "#2F64FF",
+    fontSize: 14,
+    fontWeight: "900" as const,
+    marginBottom: 10,
+  },
   aiText: { color: "#344054", lineHeight: 22 },
   analysisFooter: {
     flexDirection: "row" as const,
@@ -298,7 +369,12 @@ const styles = {
     borderBottomColor: "#F2F4F7",
   },
   tableLabel: { color: "#98A2B3", fontWeight: "700" as const },
-  tableValue: { color: "#101828", fontWeight: "900" as const, maxWidth: "55%", textAlign: "right" as const },
+  tableValue: {
+    color: "#101828",
+    fontWeight: "900" as const,
+    maxWidth: "55%",
+    textAlign: "right" as const,
+  },
   sellerCard: {
     marginHorizontal: 16,
     backgroundColor: "#fff",
