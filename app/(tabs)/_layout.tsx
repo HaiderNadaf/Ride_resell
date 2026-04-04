@@ -11,16 +11,30 @@ export default function TabLayout() {
   useEffect(() => {
     let mounted = true;
 
-    registerForPushToken()
-      .then(async (token) => {
+    (async () => {
+      try {
+        const token = await registerForPushToken();
+
         if (!mounted || !token) return;
-        await fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/api/save-token`, {
+
+        const baseUrl =
+          process.env.EXPO_PUBLIC_BASE_URL ||
+          "https://ride-rel-backend.onrender.com";
+        const response = await fetch(`${baseUrl}/api/save-token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token }),
         });
-      })
-      .catch(() => {});
+
+        if (!response.ok && mounted) {
+          console.warn("Failed to save push token:", response.status);
+        }
+      } catch (error) {
+        if (mounted) {
+          console.error("Push token registration failed:", error);
+        }
+      }
+    })();
 
     return () => {
       mounted = false;
@@ -45,25 +59,33 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ focused }) => <TabItem label="Home" focused={focused} icon={House} />,
+          tabBarIcon: ({ focused }) => (
+            <TabItem label="Home" focused={focused} icon={House} />
+          ),
         }}
       />
       <Tabs.Screen
         name="feed"
         options={{
-          tabBarIcon: ({ focused }) => <TabItem label="Search" focused={focused} icon={Search} />,
+          tabBarIcon: ({ focused }) => (
+            <TabItem label="Search" focused={focused} icon={Search} />
+          ),
         }}
       />
       <Tabs.Screen
         name="create"
         options={{
-          tabBarIcon: ({ focused }) => <TabItem label="Create" focused={focused} icon={CirclePlus} />,
+          tabBarIcon: ({ focused }) => (
+            <TabItem label="Create" focused={focused} icon={CirclePlus} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: ({ focused }) => <TabItem label="Profile" focused={focused} icon={UserRound} />,
+          tabBarIcon: ({ focused }) => (
+            <TabItem label="Profile" focused={focused} icon={UserRound} />
+          ),
         }}
       />
     </Tabs>

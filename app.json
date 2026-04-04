@@ -4,20 +4,18 @@
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icons.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "permissions": [
-        "NOTIFICATIONS",
         "NOTIFICATIONS"
       ],
       "useNextNotificationsApi": true,
-      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -31,15 +29,15 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/signIn-logo.png      "image": "./assets/images/logos.png""
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logos.png",
-          "imageWidth": 200,
+          "image": "./assets/images/signIn-logo.png",
+          "imageWidth": 400,
           "resizeMode": "contain",
           "backgroundColor": "#F6F7FB",
           "dark": {
