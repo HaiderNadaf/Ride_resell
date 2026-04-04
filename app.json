@@ -1,7 +1,7 @@
 {
   "expo": {
-   "name": "Dekho Gadi",
-"slug": "dekho-gadi",
+    "name": "Dekho Gadi",
+    "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icons.png",
@@ -55,10 +55,10 @@
       "reactCompiler": true
     },
     "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "01168761-5bef-4a96-b4e8-18462d669462"
-      }
-    }
+  "eas": {
+    "projectId": "01168761-5bef-4a96-b4e8-18462d669462"
+  }
+},
+    "owner": "haidernadaf"
   }
 }
