@@ -105,15 +105,15 @@ export default function SignUpScreen() {
             <View style={styles.hero}>
               <View style={styles.logoWrap}>
                 <Image
-                  source={require("../../assets/images/logos.png")}
+                  source={require("../../assets/images/signIn-logo.png")}
                   style={styles.logo}
                   resizeMode="contain"
                 />
               </View>
               <Text style={styles.title}>Verify your email</Text>
               <Text style={styles.subtitle}>
-                Enter the 6-digit code sent to your inbox to finish creating your
-                account.
+                Enter the 6-digit code sent to your inbox to finish creating
+                your account.
               </Text>
             </View>
 

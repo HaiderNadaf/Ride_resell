@@ -17,7 +17,7 @@
       ],
       "useNextNotificationsApi": true,
       "adaptiveIcon": {
-    "foregroundImage": "./assets/images/icon.png",
+     "foregroundImage": "./assets/adaptive-icon.png",
     "backgroundColor": "#ffffff"
   },
       "predictiveBackGestureEnabled": false,

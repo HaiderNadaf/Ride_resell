@@ -30,6 +30,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] =
     useState<(typeof tabs)[number]>("Active");
+
   const userHandle =
     user?.fullName ||
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
@@ -73,18 +74,24 @@ export default function ProfileScreen() {
   }, [isLoaded, isSignedIn, user, userHandle]);
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.replace("/auth/sign-in");
-    }
-  }, [isLoaded, isSignedIn, router]);
+    if (!isLoaded) return;
 
+    // wait a bit to avoid false redirect
+    const timeout = setTimeout(() => {
+      if (!isSignedIn) {
+        router.replace("/auth/sign-in");
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [isLoaded, isSignedIn]);
   const userInfo = useMemo(() => {
     return {
       name: userHandle || "Seller",
       email: user?.primaryEmailAddress?.emailAddress || "Email not available",
       avatar:
         user?.imageUrl ||
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80",
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
       joined: user?.createdAt
         ? new Date(user.createdAt).toLocaleDateString()
         : "N/A",
@@ -112,6 +119,14 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView style={styles.center}>
         <ActivityIndicator size="large" color="#2F64FF" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <Text>Please sign in</Text>
       </SafeAreaView>
     );
   }
@@ -152,22 +167,13 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <View style={styles.headerTopRow}>
             <View style={styles.userRow}>
-              <Image
-                source={{ uri: userInfo.avatar }}
-                style={styles.avatar}
-                onError={(error) => {
-                  console.warn(
-                    "Failed to load avatar:",
-                    userInfo.avatar,
-                    error,
-                  );
-                }}
-              />
+              <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
               <View>
-                <Text style={styles.helloText}>{userInfo.name}</Text>
+                <Text style={styles.helloText}>{`${userInfo.name}`}</Text>
                 <Text style={styles.subText}>Seller</Text>
               </View>
             </View>
+
             <View style={styles.headerActions}>
               <TouchableOpacity
                 style={styles.headerIcon}
@@ -175,6 +181,7 @@ export default function ProfileScreen() {
               >
                 <Bell size={18} color="#fff" />
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.headerIcon}
                 onPress={() => router.push("/create")}
@@ -185,8 +192,10 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.profileMeta}>
-            <Text style={styles.profileEmail}>{userInfo.email}</Text>
-            <Text style={styles.profileJoined}>Joined {userInfo.joined}</Text>
+            <Text style={styles.profileEmail}>{`${userInfo.email}`}</Text>
+            <Text style={styles.profileJoined}>
+              {`Joined ${userInfo.joined}`}
+            </Text>
           </View>
 
           <View style={styles.statRow}>
@@ -208,7 +217,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[styles.tabLabel, active && styles.tabLabelActive]}
                 >
-                  {tab}
+                  {`${tab}`}
                 </Text>
                 {active ? (
                   <View style={styles.tabUnderline} />
@@ -225,6 +234,7 @@ export default function ProfileScreen() {
             visibleProducts.slice(0, 6).map((item) => (
               <View key={item._id} style={styles.listCard}>
                 <Image source={{ uri: item.image }} style={styles.listImage} />
+
                 <View style={styles.listBody}>
                   <View style={styles.listTopRow}>
                     <View style={{ flex: 1 }}>
@@ -232,10 +242,12 @@ export default function ProfileScreen() {
                         {item.listingTitle ||
                           `${item.year} ${item.brand} ${item.model}`}
                       </Text>
+
                       <Text style={styles.listPrice}>
-                        {formatMoney(item.price)}
+                        {`${formatMoney(item.price)}`}
                       </Text>
                     </View>
+
                     <View style={styles.liveBadge}>
                       <Text style={styles.liveBadgeText}>
                         {item.status === "SOLD" ? "SOLD" : "LIVE"}
@@ -244,8 +256,9 @@ export default function ProfileScreen() {
                   </View>
 
                   <Text style={styles.listStats}>
-                    {item.views || 0} views {item.saves || 0} saves{" "}
-                    {item.inquiries || 0} inquiries
+                    {`${item.views || 0} views • ${item.saves || 0} saves • ${
+                      item.inquiries || 0
+                    } inquiries`}
                   </Text>
 
                   <View style={styles.actionRow}>
@@ -285,6 +298,7 @@ export default function ProfileScreen() {
         </View>
 
         <Text style={styles.sectionTitle}>Performance Insights</Text>
+
         <View style={styles.insightCard}>
           <Text style={styles.insightText}>
             Your listings outperform <Text style={styles.highlight}>78%</Text>{" "}
@@ -294,15 +308,15 @@ export default function ProfileScreen() {
           <View style={styles.insightGrid}>
             <Metric
               label="Views"
-              value={`${products.reduce((sum, item) => sum + (item.views || 0), 0)}`}
+              value={`${products.reduce((s, i) => s + (i.views || 0), 0)}`}
             />
             <Metric
               label="Saves"
-              value={`${products.reduce((sum, item) => sum + (item.saves || 0), 0)}`}
+              value={`${products.reduce((s, i) => s + (i.saves || 0), 0)}`}
             />
             <Metric
               label="Inquiries"
-              value={`${products.reduce((sum, item) => sum + (item.inquiries || 0), 0)}`}
+              value={`${products.reduce((s, i) => s + (i.inquiries || 0), 0)}`}
             />
           </View>
 
