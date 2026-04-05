@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -22,101 +22,119 @@ import {
 
 const tabs = ["Active", "Sold", "Drafts"] as const;
 
+const DEFAULT_AVATAR =
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80";
+
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, isLoaded, isSignedIn } = useUser();
-  const { signOut } = useAuth();
+  const { user, isLoaded: userIsLoaded, isSignedIn } = useUser();
+  const { signOut, isLoaded: authIsLoaded } = useAuth();
+
+  const isLoaded = userIsLoaded && authIsLoaded;
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] =
     useState<(typeof tabs)[number]>("Active");
-  const userHandle =
-    user?.fullName ||
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    user?.primaryEmailAddress?.emailAddress?.split("@")[0] ||
-    "Seller";
 
-  const normalizedHandle = (userHandle || "").trim().toLowerCase();
-
+  // Safer redirect
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || !user) return;
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      const timer = setTimeout(() => router.replace("/auth/sign-in"), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  // Fetch products
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) {
+      if (isLoaded) setLoading(false);
+      return;
+    }
 
     let mounted = true;
     setLoading(true);
 
+    const email = user.primaryEmailAddress?.emailAddress?.trim() || "";
+    const userHandle =
+      user.fullName?.trim() ||
+      [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+      (user.primaryEmailAddress?.emailAddress?.split("@")[0] || "").trim() ||
+      "Seller";
+
+    const normalizedHandle = userHandle.toLowerCase();
+
     fetchProducts()
-      .then((items) => {
+      .then((items: any[] = []) => {
         if (!mounted) return;
-
-        const email = user.primaryEmailAddress?.emailAddress || "";
-
-        const ownedItems = items.filter((item) => {
+        const ownedItems = items.filter((item: any) => {
+          if (!item) return false;
           const sellerName = (item.sellerName || "").trim().toLowerCase();
-          const sellerId = (item as any).sellerId?.trim?.() || "";
-          const sellerEmail =
-            (item as any).sellerEmail?.trim?.().toLowerCase() || "";
+          const sellerId = String(item.sellerId || "").trim();
+          const sellerEmail = (item.sellerEmail || "").trim().toLowerCase();
 
           return (
             sellerId === user.id ||
-            sellerEmail === email.toLowerCase() ||
+            (email && sellerEmail === email.toLowerCase()) ||
             (normalizedHandle && sellerName === normalizedHandle)
           );
         });
 
-        setProducts(ownedItems.map((item) => normalizeProduct(item)));
+        setProducts(ownedItems.map((item: any) => normalizeProduct(item)));
       })
-      .finally(() => mounted && setLoading(false));
+      .catch((error) => {
+        console.error("Failed to fetch products:", error);
+        Alert.alert("Error", "Failed to load your listings. Please try again.");
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
 
     return () => {
       mounted = false;
     };
-  }, [isLoaded, isSignedIn, user, userHandle]);
-
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.replace("/auth/sign-in");
-    }
-  }, [isLoaded, isSignedIn, router]);
+  }, [isLoaded, isSignedIn, user]);
 
   const userInfo = useMemo(() => {
+    if (!user) {
+      return {
+        name: "Seller",
+        email: "Email not available",
+        avatar: DEFAULT_AVATAR,
+        joined: "N/A",
+      };
+    }
     return {
-      name: userHandle || "Seller",
-      email: user?.primaryEmailAddress?.emailAddress || "Email not available",
-      avatar:
-        user?.imageUrl ||
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80",
-      joined: user?.createdAt
+      name:
+        user.fullName?.trim() ||
+        [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+        user.primaryEmailAddress?.emailAddress?.split("@")[0]?.trim() ||
+        "Seller",
+      email: user.primaryEmailAddress?.emailAddress || "Email not available",
+      avatar: user.imageUrl || DEFAULT_AVATAR,
+      joined: user.createdAt
         ? new Date(user.createdAt).toLocaleDateString()
         : "N/A",
     };
-  }, [user, userHandle]);
+  }, [user]);
 
   const stats = useMemo(() => {
-    const active = products.filter((item) => item.status !== "DRAFT").length;
-    const sold = products.filter((item) => item.status === "SOLD").length;
-    const drafts = products.filter((item) => item.status === "DRAFT").length;
+    const active = products.filter((p) => p.status !== "DRAFT").length;
+    const sold = products.filter((p) => p.status === "SOLD").length;
+    const drafts = products.filter((p) => p.status === "DRAFT").length;
     return { active, sold, drafts };
   }, [products]);
 
   const visibleProducts = useMemo(() => {
-    if (selectedTab === "Drafts") {
-      return products.filter((item) => item.status === "DRAFT");
-    }
-    if (selectedTab === "Sold") {
-      return products.filter((item) => item.status === "SOLD");
-    }
-    return products.filter((item) => item.status !== "DRAFT");
+    if (selectedTab === "Drafts")
+      return products.filter((p) => p.status === "DRAFT");
+    if (selectedTab === "Sold")
+      return products.filter((p) => p.status === "SOLD");
+    return products.filter((p) => p.status !== "DRAFT");
   }, [products, selectedTab]);
 
-  if (!isLoaded || loading) {
-    return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#2F64FF" />
-      </SafeAreaView>
-    );
-  }
-
-  const handleDelete = async (item: Product) => {
+  const handleDelete = useCallback(async (item: Product) => {
     Alert.alert(
       "Delete listing?",
       "This will remove the listing from the marketplace.",
@@ -128,9 +146,7 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await deleteProduct(item._id);
-              setProducts((current) =>
-                current.filter((entry) => entry._id !== item._id),
-              );
+              setProducts((prev) => prev.filter((p) => p._id !== item._id));
             } catch (error: any) {
               Alert.alert(
                 "Delete failed",
@@ -141,7 +157,23 @@ export default function ProfileScreen() {
         },
       ],
     );
-  };
+  }, []);
+
+  if (!isLoaded || loading) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <ActivityIndicator size="large" color="#2F64FF" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <Text>Loading profile...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -149,25 +181,21 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTopRow}>
             <View style={styles.userRow}>
               <Image
                 source={{ uri: userInfo.avatar }}
                 style={styles.avatar}
-                onError={(error) => {
-                  console.warn(
-                    "Failed to load avatar:",
-                    userInfo.avatar,
-                    error,
-                  );
-                }}
+                onError={() => console.warn("Avatar load failed")}
               />
               <View>
                 <Text style={styles.helloText}>{userInfo.name}</Text>
                 <Text style={styles.subText}>Seller</Text>
               </View>
             </View>
+
             <View style={styles.headerActions}>
               <TouchableOpacity
                 style={styles.headerIcon}
@@ -175,9 +203,10 @@ export default function ProfileScreen() {
               >
                 <Bell size={18} color="#fff" />
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.headerIcon}
-                onPress={() => router.push("/create")}
+                onPress={() => router.push("/settings")}
               >
                 <Settings size={18} color="#fff" />
               </TouchableOpacity>
@@ -196,9 +225,10 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* Tabs */}
         <View style={styles.tabRow}>
           {tabs.map((tab) => {
-            const active = selectedTab === tab;
+            const isActive = selectedTab === tab;
             return (
               <TouchableOpacity
                 key={tab}
@@ -206,11 +236,11 @@ export default function ProfileScreen() {
                 style={styles.tabItem}
               >
                 <Text
-                  style={[styles.tabLabel, active && styles.tabLabelActive]}
+                  style={[styles.tabLabel, isActive && styles.tabLabelActive]}
                 >
                   {tab}
                 </Text>
-                {active ? (
+                {isActive ? (
                   <View style={styles.tabUnderline} />
                 ) : (
                   <View style={styles.tabPlaceholder} />
@@ -220,17 +250,24 @@ export default function ProfileScreen() {
           })}
         </View>
 
+        {/* Listings */}
         <View style={styles.listWrap}>
-          {visibleProducts.length ? (
+          {visibleProducts.length > 0 ? (
             visibleProducts.slice(0, 6).map((item) => (
               <View key={item._id} style={styles.listCard}>
-                <Image source={{ uri: item.image }} style={styles.listImage} />
+                <Image
+                  source={{ uri: item.image || DEFAULT_AVATAR }}
+                  style={styles.listImage}
+                  onError={(e) =>
+                    console.warn("Failed to load product image:", item.image)
+                  }
+                />
                 <View style={styles.listBody}>
                   <View style={styles.listTopRow}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.listTitle} numberOfLines={1}>
                         {item.listingTitle ||
-                          `${item.year} ${item.brand} ${item.model}`}
+                          `${item.year || ""} ${item.brand || ""} ${item.model || ""}`.trim()}
                       </Text>
                       <Text style={styles.listPrice}>
                         {formatMoney(item.price)}
@@ -244,7 +281,7 @@ export default function ProfileScreen() {
                   </View>
 
                   <Text style={styles.listStats}>
-                    {item.views || 0} views {item.saves || 0} saves{" "}
+                    {item.views || 0} views • {item.saves || 0} saves •{" "}
                     {item.inquiries || 0} inquiries
                   </Text>
 
@@ -284,6 +321,7 @@ export default function ProfileScreen() {
           )}
         </View>
 
+        {/* Performance Insights */}
         <Text style={styles.sectionTitle}>Performance Insights</Text>
         <View style={styles.insightCard}>
           <Text style={styles.insightText}>
@@ -312,11 +350,16 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* Logout */}
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={async () => {
-            await signOut();
-            router.replace("/auth/sign-in");
+            try {
+              await signOut();
+              router.replace("/auth/sign-in");
+            } catch (e) {
+              console.error("Sign out failed", e);
+            }
           }}
         >
           <Text style={styles.logoutText}>Logout</Text>
@@ -326,6 +369,7 @@ export default function ProfileScreen() {
   );
 }
 
+// Reusable Components
 function StatCard({ value, label }: { value: number; label: string }) {
   return (
     <View style={styles.statCard}>
@@ -344,6 +388,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Styles
 const styles = {
   screen: { flex: 1, backgroundColor: "#F6F7FB" as const },
   content: { paddingBottom: 120 },
@@ -352,6 +397,7 @@ const styles = {
     alignItems: "center" as const,
     justifyContent: "center" as const,
   },
+
   header: {
     backgroundColor: "#2F64FF",
     paddingHorizontal: 16,
@@ -379,24 +425,16 @@ const styles = {
   },
   helloText: { color: "#fff", fontSize: 18, fontWeight: "900" as const },
   subText: { color: "rgba(255,255,255,0.84)", marginTop: 3, fontSize: 13 },
-  profileMeta: {
-    marginTop: 14,
-    paddingHorizontal: 4,
-  },
+
+  profileMeta: { marginTop: 14, paddingHorizontal: 4 },
   profileEmail: {
     color: "rgba(255,255,255,0.94)",
     fontSize: 13,
     fontWeight: "700" as const,
   },
-  profileJoined: {
-    color: "rgba(255,255,255,0.8)",
-    marginTop: 4,
-    fontSize: 12,
-  },
-  headerActions: {
-    flexDirection: "row" as const,
-    gap: 10,
-  },
+  profileJoined: { color: "rgba(255,255,255,0.8)", marginTop: 4, fontSize: 12 },
+
+  headerActions: { flexDirection: "row" as const, gap: 10 },
   headerIcon: {
     width: 34,
     height: 34,
@@ -405,11 +443,8 @@ const styles = {
     alignItems: "center" as const,
     justifyContent: "center" as const,
   },
-  statRow: {
-    flexDirection: "row" as const,
-    gap: 10,
-    marginTop: 18,
-  },
+
+  statRow: { flexDirection: "row" as const, gap: 10, marginTop: 18 },
   statCard: {
     flex: 1,
     backgroundColor: "rgba(255,255,255,0.14)",
@@ -423,6 +458,7 @@ const styles = {
     marginTop: 4,
     fontWeight: "600" as const,
   },
+
   tabRow: {
     flexDirection: "row" as const,
     paddingHorizontal: 16,
@@ -440,11 +476,8 @@ const styles = {
     width: 28,
   },
   tabPlaceholder: { height: 3, marginTop: 6, width: 28 },
-  listWrap: {
-    paddingHorizontal: 16,
-    marginTop: 8,
-    gap: 12,
-  },
+
+  listWrap: { paddingHorizontal: 16, marginTop: 8, gap: 12 },
   listCard: {
     backgroundColor: "#fff",
     borderRadius: 20,
@@ -484,11 +517,8 @@ const styles = {
   },
   liveBadgeText: { color: "#12B76A", fontSize: 11, fontWeight: "900" as const },
   listStats: { marginTop: 8, color: "#667085", fontSize: 12 },
-  actionRow: {
-    flexDirection: "row" as const,
-    gap: 16,
-    marginTop: 12,
-  },
+
+  actionRow: { flexDirection: "row" as const, gap: 16, marginTop: 12 },
   actionButton: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
@@ -501,6 +531,7 @@ const styles = {
     gap: 6,
   },
   deleteText: { color: "#D92D20", fontWeight: "700" as const },
+
   sectionTitle: {
     marginTop: 24,
     paddingHorizontal: 16,
@@ -527,11 +558,7 @@ const styles = {
     lineHeight: 22,
   },
   highlight: { color: "#2F64FF" },
-  insightGrid: {
-    flexDirection: "row" as const,
-    gap: 10,
-    marginTop: 18,
-  },
+  insightGrid: { flexDirection: "row" as const, gap: 10, marginTop: 18 },
   metric: {
     flex: 1,
     backgroundColor: "#F8FAFF",
@@ -553,6 +580,7 @@ const styles = {
   },
   responseLabel: { color: "#667085", fontWeight: "700" as const },
   responseValue: { color: "#12B76A", fontSize: 16, fontWeight: "900" as const },
+
   emptyState: {
     backgroundColor: "#fff",
     borderRadius: 20,
@@ -566,6 +594,7 @@ const styles = {
     textAlign: "center" as const,
     lineHeight: 20,
   },
+
   logoutButton: {
     marginHorizontal: 16,
     marginTop: 18,
