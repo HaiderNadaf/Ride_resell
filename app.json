@@ -17,9 +17,9 @@
       ],
       "useNextNotificationsApi": true,
       "adaptiveIcon": {
-     "foregroundImage": "./assets/adaptive-icon.png",
-    "backgroundColor": "#ffffff"
-  },
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "predictiveBackGestureEnabled": false,
       "package": "com.haidernadaf.myapp"
     },
@@ -50,10 +50,10 @@
       "reactCompiler": true
     },
     "extra": {
-  "eas": {
-    "projectId": "01168761-5bef-4a96-b4e8-18462d669462"
-  }
-},
-    "owner": "haidernadaf"
+      "router": {},
+      "eas": {
+        "projectId": "cb8d5e8b-dfdc-44f6-aafa-a5b44cf38969"
+      }
+    }
   }
 }
