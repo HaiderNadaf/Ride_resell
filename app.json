@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
@@ -17,10 +17,8 @@
       ],
       "useNextNotificationsApi": true,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.haidernadaf.myapp"
@@ -52,10 +50,10 @@
       "reactCompiler": true
     },
     "extra": {
-  "eas": {
-    "projectId": "01168761-5bef-4a96-b4e8-18462d669462"
-  }
-},
-    "owner": "haidernadaf"
+      "router": {},
+      "eas": {
+        "projectId": "cb8d5e8b-dfdc-44f6-aafa-a5b44cf38969"
+      }
+    }
   }
 }
