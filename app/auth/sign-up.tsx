@@ -16,7 +16,8 @@ import { useSignUp, useUser, useAuth } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 
 export default function SignUpScreen() {
-  const { signUp, isLoaded } = useSignUp();
+  // ✅ FIX: Added `setActive` to the destructure — this was missing before
+  const { signUp, isLoaded, setActive } = useSignUp();
   const { isSignedIn, isLoaded: userLoaded } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
@@ -80,6 +81,10 @@ export default function SignUpScreen() {
       const result = await signUp.attemptEmailAddressVerification({ code });
 
       if (result.status === "complete") {
+        // ✅ FIX: Call setActive to activate the session BEFORE navigating.
+        // Without this, Clerk never marks the user as signed in, so the
+        // Profile screen sees isSignedIn=false and redirects back to sign-in.
+        await setActive({ session: result.createdSessionId });
         router.replace("/(tabs)");
       }
     } catch (e: any) {

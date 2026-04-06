@@ -41,7 +41,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (!isLoaded) return;
     if (!isSignedIn) {
-      const timer = setTimeout(() => router.replace("/auth/sign-in"), 50);
+      const timer = setTimeout(() => router.replace("/auth/sign-in"), 5);
       return () => clearTimeout(timer);
     }
   }, [isLoaded, isSignedIn, router]);
