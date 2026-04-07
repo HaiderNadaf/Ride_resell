@@ -176,24 +176,36 @@ export default function CreateListingScreen() {
   const [carDataLoaded, setCarDataLoaded] = useState(false);
 
   // Fetch Indian cars brands & models (free public JSON)
+
   useEffect(() => {
-    fetch(INDIAN_CARS_JSON_URL)
-      .then((res) => res.json())
-      .then((data: { cars: { brand: string; model: string }[] }) => {
-        const carsList = data.cars || [];
+    let isMounted = true;
+
+    const loadCarData = async () => {
+      try {
+        const response = await fetch(INDIAN_CARS_JSON_URL);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const carsList = data.cars || data || [];
+
         const brandSet = new Set<string>();
         const modelsMap: Record<string, { label: string; value: string }[]> =
           {};
 
-        carsList.forEach((item) => {
-          const b = item.brand?.trim() || "";
-          const m = item.model?.trim() || "";
-          if (b) brandSet.add(b);
-          if (b && m) {
-            if (!modelsMap[b])
-              modelsMap[b] = [{ label: "Select model", value: "" }];
-            if (!modelsMap[b].some((opt) => opt.value === m)) {
-              modelsMap[b].push({ label: m, value: m });
+        carsList.forEach((item: any) => {
+          const brand = (item.brand || item.make || "").trim();
+          const model = (item.model || item.name || "").trim();
+
+          if (brand) brandSet.add(brand);
+          if (brand && model) {
+            if (!modelsMap[brand]) {
+              modelsMap[brand] = [{ label: "Select model", value: "" }];
+            }
+            if (!modelsMap[brand].some((opt) => opt.value === model)) {
+              modelsMap[brand].push({ label: model, value: model });
             }
           }
         });
@@ -206,19 +218,28 @@ export default function CreateListingScreen() {
           { label: "Other", value: "Other" },
         ];
 
-        setCarBrands(brandsArr);
-        setCarModelsByBrand(modelsMap);
-        setCarDataLoaded(true);
-      })
-      .catch((err) => {
-        console.error("Failed to load Indian cars data from free API:", err);
-        // Fallback (won't affect UI much - user can still use "Other")
-        setCarBrands([
-          { label: "Select brand", value: "" },
-          { label: "Other", value: "Other" },
-        ]);
-        setCarDataLoaded(true);
-      });
+        if (isMounted) {
+          setCarBrands(brandsArr);
+          setCarModelsByBrand(modelsMap);
+          setCarDataLoaded(true);
+        }
+      } catch (error) {
+        console.error("Failed to load Indian cars data from API:", error);
+        if (isMounted) {
+          setCarBrands([
+            { label: "Select brand", value: "" },
+            { label: "Other", value: "Other" },
+          ]);
+          setCarDataLoaded(true);
+        }
+      }
+    };
+
+    loadCarData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Reset brand/model when vehicle type changes (cascading logic)
@@ -240,17 +261,18 @@ export default function CreateListingScreen() {
       return [{ label: "Select vehicle type first", value: "" }];
     }
     if (["car", "electric-car", "truck"].includes(type)) {
-      return carDataLoaded && carBrands.length > 0
+      if (!carDataLoaded) {
+        return [{ label: "Loading brands...", value: "" }];
+      }
+      return carBrands.length > 0
         ? carBrands
-        : [{ label: "Loading Indian brands...", value: "" }];
+        : [
+            { label: "Select brand", value: "" },
+            { label: "Other", value: "Other" },
+          ];
     }
-    // Bike / Scooter / Electric 2-wheelers (Indian list)
-    if (
-      ["bike", "scooter", "electric-bike", "electric-scooter"].includes(type)
-    ) {
-      return bikeBrands;
-    }
-    return [{ label: "Select brand", value: "" }];
+    // For bikes etc.
+    return bikeBrands;
   };
 
   const getModelsForBrand = (type: string, selectedBrand: string) => {
