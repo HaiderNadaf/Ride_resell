@@ -13,6 +13,7 @@
     },
     "android": {
       "permissions": [
+        "NOTIFICATIONS",
         "NOTIFICATIONS"
       ],
       "useNextNotificationsApi": true,
@@ -54,6 +55,12 @@
       "eas": {
         "projectId": "cb8d5e8b-dfdc-44f6-aafa-a5b44cf38969"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cb8d5e8b-dfdc-44f6-aafa-a5b44cf38969"
     }
   }
 }
