@@ -38,149 +38,88 @@ const vehicleTypeOptions = [
   { label: "Truck", value: "truck" },
 ];
 
-const brandOptions = [
+// FREE API for Indian cars (brands + models) - raw public GitHub JSON (no API key needed)
+const INDIAN_CARS_JSON_URL =
+  "https://raw.githubusercontent.com/deepakssn/indiancars/master/indiancars.json";
+
+// Hard-coded popular Indian bike / scooter / EV 2-wheeler brands & models (Indian focused)
+const bikeBrands = [
   { label: "Select brand", value: "" },
-  { label: "BMW", value: "BMW" },
-  { label: "Suzuki", value: "Suzuki" },
-  { label: "Kia", value: "Kia" },
-  { label: "Hyundai", value: "Hyundai" },
-  { label: "Toyota", value: "Toyota" },
-  { label: "Maruti Suzuki", value: "Maruti Suzuki" },
-  { label: "Ather Energy", value: "Ather Energy" },
-  { label: "Oben Electric", value: "Oben Electric" },
+  { label: "Hero", value: "Hero" },
+  { label: "Bajaj", value: "Bajaj" },
+  { label: "TVS", value: "TVS" },
+  { label: "Royal Enfield", value: "Royal Enfield" },
   { label: "Honda", value: "Honda" },
   { label: "Yamaha", value: "Yamaha" },
-  { label: "Mercedes", value: "Mercedes" },
-  { label: "Audi", value: "Audi" },
-  { label: "Ford", value: "Ford" },
-  { label: "Tata", value: "Tata" },
-  { label: "Mahindra", value: "Mahindra" },
-  { label: "MG", value: "MG" },
-  { label: "Tesla", value: "Tesla" },
-  { label: "Jeep", value: "Jeep" },
-  { label: "Skoda", value: "Skoda" },
-  { label: "Renault", value: "Renault" },
-  { label: "Nissan", value: "Nissan" },
-  { label: "Volvo", value: "Volvo" },
-  { label: "Porsche", value: "Porsche" },
+  { label: "Suzuki", value: "Suzuki" },
+  { label: "KTM", value: "KTM" },
+  { label: "Ather Energy", value: "Ather Energy" },
+  { label: "Ola Electric", value: "Ola Electric" },
+  { label: "Revolt", value: "Revolt" },
   { label: "Other", value: "Other" },
 ];
 
-const modelOptionsByBrand: Record<string, { label: string; value: string }[]> = {
-  BMW: [
+const bikeModelsByBrand: Record<string, { label: string; value: string }[]> = {
+  Hero: [
     { label: "Select model", value: "" },
-    { label: "M4", value: "M4" },
-    { label: "X5", value: "X5" },
-    { label: "5 Series", value: "5 Series" },
+    { label: "Splendor Plus", value: "Splendor Plus" },
+    { label: "HF Deluxe", value: "HF Deluxe" },
+    { label: "Glamour", value: "Glamour" },
+    { label: "Xtreme", value: "Xtreme" },
+  ],
+  Bajaj: [
+    { label: "Select model", value: "" },
+    { label: "Pulsar NS200", value: "Pulsar NS200" },
+    { label: "Dominar 400", value: "Dominar 400" },
+    { label: "Avenger", value: "Avenger" },
+  ],
+  TVS: [
+    { label: "Select model", value: "" },
+    { label: "Apache RTR 160", value: "Apache RTR 160" },
+    { label: "Jupiter", value: "Jupiter" },
+    { label: "Ntorq", value: "Ntorq" },
+  ],
+  "Royal Enfield": [
+    { label: "Select model", value: "" },
+    { label: "Classic 350", value: "Classic 350" },
+    { label: "Himalayan", value: "Himalayan" },
+    { label: "Meteor 350", value: "Meteor 350" },
+  ],
+  Honda: [
+    { label: "Select model", value: "" },
+    { label: "Shine", value: "Shine" },
+    { label: "Activa", value: "Activa" },
+    { label: "SP 125", value: "SP 125" },
+  ],
+  Yamaha: [
+    { label: "Select model", value: "" },
+    { label: "R15", value: "R15" },
+    { label: "FZ", value: "FZ" },
+    { label: "Ray ZR", value: "Ray ZR" },
   ],
   Suzuki: [
     { label: "Select model", value: "" },
     { label: "Access 125", value: "Access 125" },
-    { label: "Brezza", value: "Brezza" },
+    { label: "Gixxer", value: "Gixxer" },
   ],
-  Kia: [
+  KTM: [
     { label: "Select model", value: "" },
-    { label: "EV6", value: "EV6" },
-    { label: "Seltos", value: "Seltos" },
-  ],
-  Hyundai: [
-    { label: "Select model", value: "" },
-    { label: "Creta", value: "Creta" },
-    { label: "i20", value: "i20" },
-  ],
-  Toyota: [
-    { label: "Select model", value: "" },
-    { label: "Fortuner", value: "Fortuner" },
-    { label: "Innova", value: "Innova" },
-  ],
-  "Maruti Suzuki": [
-    { label: "Select model", value: "" },
-    { label: "Swift", value: "Swift" },
-    { label: "Baleno", value: "Baleno" },
-    { label: "Brezza", value: "Brezza" },
+    { label: "Duke 200", value: "Duke 200" },
+    { label: "RC 200", value: "RC 200" },
   ],
   "Ather Energy": [
     { label: "Select model", value: "" },
+    { label: "450X", value: "450X" },
     { label: "Rizta", value: "Rizta" },
   ],
-  "Oben Electric": [
+  "Ola Electric": [
     { label: "Select model", value: "" },
-    { label: "Oben Rorr", value: "Oben Rorr" },
+    { label: "S1 Pro", value: "S1 Pro" },
+    { label: "S1 Air", value: "S1 Air" },
   ],
-  Honda: [
+  Revolt: [
     { label: "Select model", value: "" },
-    { label: "CBR1000RR", value: "CBR1000RR" },
-    { label: "Activa", value: "Activa" },
-  ],
-  Yamaha: [
-    { label: "Select model", value: "" },
-    { label: "MT-09", value: "MT-09" },
-    { label: "R15", value: "R15" },
-  ],
-  Mercedes: [
-    { label: "Select model", value: "" },
-    { label: "C-Class", value: "C-Class" },
-    { label: "E-Class", value: "E-Class" },
-  ],
-  Audi: [
-    { label: "Select model", value: "" },
-    { label: "A4", value: "A4" },
-    { label: "Q7", value: "Q7" },
-  ],
-  Ford: [
-    { label: "Select model", value: "" },
-    { label: "Mustang GT500", value: "Mustang GT500" },
-    { label: "Everest", value: "Everest" },
-  ],
-  Tata: [
-    { label: "Select model", value: "" },
-    { label: "Nexon", value: "Nexon" },
-    { label: "Harrier", value: "Harrier" },
-  ],
-  Mahindra: [
-    { label: "Select model", value: "" },
-    { label: "Scorpio N", value: "Scorpio N" },
-    { label: "XUV700", value: "XUV700" },
-  ],
-  MG: [
-    { label: "Select model", value: "" },
-    { label: "Comet EV", value: "Comet EV" },
-    { label: "Hector", value: "Hector" },
-  ],
-  Tesla: [
-    { label: "Select model", value: "" },
-    { label: "Model 3", value: "Model 3" },
-    { label: "Model Y", value: "Model Y" },
-  ],
-  Jeep: [
-    { label: "Select model", value: "" },
-    { label: "Compass", value: "Compass" },
-    { label: "Wrangler", value: "Wrangler" },
-  ],
-  Skoda: [
-    { label: "Select model", value: "" },
-    { label: "Slavia", value: "Slavia" },
-    { label: "Kushaq", value: "Kushaq" },
-  ],
-  Renault: [
-    { label: "Select model", value: "" },
-    { label: "Kiger", value: "Kiger" },
-    { label: "Triber", value: "Triber" },
-  ],
-  Nissan: [
-    { label: "Select model", value: "" },
-    { label: "Magnite", value: "Magnite" },
-    { label: "X-Trail", value: "X-Trail" },
-  ],
-  Volvo: [
-    { label: "Select model", value: "" },
-    { label: "XC40", value: "XC40" },
-    { label: "XC90", value: "XC90" },
-  ],
-  Porsche: [
-    { label: "Select model", value: "" },
-    { label: "911 Carrera", value: "911 Carrera" },
-    { label: "Macan", value: "Macan" },
+    { label: "RV400", value: "RV400" },
   ],
   Other: [{ label: "Type model", value: "Other" }],
 };
@@ -192,18 +131,6 @@ const conditionOptions = [
   { label: "Good", value: "Good" },
   { label: "Fair", value: "Fair" },
 ];
-
-const brandPickerOptions = brandOptions.map((option) => option.value);
-
-const isKnownBrand = (value: string) => brandPickerOptions.includes(value);
-
-const getModelOptions = (selectedBrand: string) => {
-  if (selectedBrand && modelOptionsByBrand[selectedBrand]) {
-    return modelOptionsByBrand[selectedBrand];
-  }
-
-  return [{ label: "Select brand first", value: "" }];
-};
 
 export default function CreateListingScreen() {
   const router = useRouter();
@@ -239,6 +166,116 @@ export default function CreateListingScreen() {
   const [condition, setCondition] = useState("");
   const [description, setDescription] = useState("");
 
+  // Dynamic data from free Indian cars API
+  const [carBrands, setCarBrands] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [carModelsByBrand, setCarModelsByBrand] = useState<
+    Record<string, { label: string; value: string }[]>
+  >({});
+  const [carDataLoaded, setCarDataLoaded] = useState(false);
+
+  // Fetch Indian cars brands & models (free public JSON)
+  useEffect(() => {
+    fetch(INDIAN_CARS_JSON_URL)
+      .then((res) => res.json())
+      .then((data: { cars: { brand: string; model: string }[] }) => {
+        const carsList = data.cars || [];
+        const brandSet = new Set<string>();
+        const modelsMap: Record<string, { label: string; value: string }[]> =
+          {};
+
+        carsList.forEach((item) => {
+          const b = item.brand?.trim() || "";
+          const m = item.model?.trim() || "";
+          if (b) brandSet.add(b);
+          if (b && m) {
+            if (!modelsMap[b])
+              modelsMap[b] = [{ label: "Select model", value: "" }];
+            if (!modelsMap[b].some((opt) => opt.value === m)) {
+              modelsMap[b].push({ label: m, value: m });
+            }
+          }
+        });
+
+        const brandsArr = [
+          { label: "Select brand", value: "" },
+          ...Array.from(brandSet)
+            .sort((a, b) => a.localeCompare(b))
+            .map((b) => ({ label: b, value: b })),
+          { label: "Other", value: "Other" },
+        ];
+
+        setCarBrands(brandsArr);
+        setCarModelsByBrand(modelsMap);
+        setCarDataLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Failed to load Indian cars data from free API:", err);
+        // Fallback (won't affect UI much - user can still use "Other")
+        setCarBrands([
+          { label: "Select brand", value: "" },
+          { label: "Other", value: "Other" },
+        ]);
+        setCarDataLoaded(true);
+      });
+  }, []);
+
+  // Reset brand/model when vehicle type changes (cascading logic)
+  useEffect(() => {
+    if (vehicleType) {
+      const currentBrands = getBrandsForVehicleType(vehicleType);
+      const brandValues = currentBrands.map((b) => b.value).filter(Boolean);
+      if (!brandValues.includes(brand)) {
+        setBrand("");
+        setCustomBrand("");
+        setModel("");
+        setCustomModel("");
+      }
+    }
+  }, [vehicleType]);
+
+  const getBrandsForVehicleType = (type: string) => {
+    if (!type) {
+      return [{ label: "Select vehicle type first", value: "" }];
+    }
+    if (["car", "electric-car", "truck"].includes(type)) {
+      return carDataLoaded && carBrands.length > 0
+        ? carBrands
+        : [{ label: "Loading Indian brands...", value: "" }];
+    }
+    // Bike / Scooter / Electric 2-wheelers (Indian list)
+    if (
+      ["bike", "scooter", "electric-bike", "electric-scooter"].includes(type)
+    ) {
+      return bikeBrands;
+    }
+    return [{ label: "Select brand", value: "" }];
+  };
+
+  const getModelsForBrand = (type: string, selectedBrand: string) => {
+    if (!selectedBrand) {
+      return [{ label: "Select brand first", value: "" }];
+    }
+    if (["car", "electric-car", "truck"].includes(type)) {
+      return (
+        carModelsByBrand[selectedBrand] || [
+          { label: "Select brand first", value: "" },
+        ]
+      );
+    }
+    if (
+      ["bike", "scooter", "electric-bike", "electric-scooter"].includes(type)
+    ) {
+      return (
+        bikeModelsByBrand[selectedBrand] || [
+          { label: "Select brand first", value: "" },
+        ]
+      );
+    }
+    return [{ label: "Select brand first", value: "" }];
+  };
+
   useEffect(() => {
     let mounted = true;
     if (!id) {
@@ -254,18 +291,18 @@ export default function CreateListingScreen() {
 
       setExisting(product);
       setImageUri(product.image);
-      setTitle(product.listingTitle || `${product.year} ${product.brand} ${product.model}`);
+      setTitle(
+        product.listingTitle ||
+          `${product.year} ${product.brand} ${product.model}`,
+      );
       setPrice(String(product.price));
       setVehicleType(product.category || "car");
       setYear(String(product.year || ""));
-      setBrand(isKnownBrand(product.brand || "") ? (product.brand || "") : "Other");
-      setCustomBrand(isKnownBrand(product.brand || "") ? "" : product.brand || "");
-      setModel(modelOptionsByBrand[product.brand || ""]?.some((option) => option.value === product.model) ? (product.model || "") : "Other");
-      setCustomModel(
-        modelOptionsByBrand[product.brand || ""]?.some((option) => option.value === product.model)
-          ? ""
-          : product.model || ""
-      );
+      // Updated editing logic - works with new dynamic lists (brand/model set directly)
+      setBrand(product.brand || "");
+      setCustomBrand("");
+      setModel(product.model || "");
+      setCustomModel("");
       setMileage(String(product.mileage || ""));
       setFuelType(product.fuelType || "Petrol");
       setTransmission(product.transmission || "Automatic");
@@ -284,6 +321,7 @@ export default function CreateListingScreen() {
     };
   }, [id]);
 
+  // ... (all your existing India location useEffects remain 100% unchanged)
   useEffect(() => {
     let mounted = true;
 
@@ -397,7 +435,7 @@ export default function CreateListingScreen() {
 
     return () => {
       mounted = false;
-    }
+    };
   }, [stateName, district, taluk]);
 
   const sellerName =
@@ -410,7 +448,9 @@ export default function CreateListingScreen() {
   const sellerEmail = user?.primaryEmailAddress?.emailAddress || "";
   const selectedBrand = brand === "Other" ? customBrand.trim() : brand;
   const selectedModel = model === "Other" ? customModel.trim() : model;
-  const composedLocation = [village, taluk, district, stateName].filter(Boolean).join(", ");
+  const composedLocation = [village, taluk, district, stateName]
+    .filter(Boolean)
+    .join(", ");
   const selectedStateValue = stateName;
   const selectedDistrictValue = district;
   const selectedTalukValue = taluk;
@@ -420,22 +460,36 @@ export default function CreateListingScreen() {
     ...states.map((entry) => ({ label: entry, value: entry })),
   ];
   const districtPickerOptions = [
-    { label: selectedStateValue ? "Select district" : "Select state first", value: "" },
+    {
+      label: selectedStateValue ? "Select district" : "Select state first",
+      value: "",
+    },
     ...districts.map((entry) => ({ label: entry, value: entry })),
   ];
   const talukPickerOptions = [
-    { label: selectedDistrictValue ? "Select taluk / area" : "Select district first", value: "" },
+    {
+      label: selectedDistrictValue
+        ? "Select taluk / area"
+        : "Select district first",
+      value: "",
+    },
     ...taluks.map((entry) => ({ label: entry, value: entry })),
   ];
   const villagePickerOptions = [
-    { label: selectedTalukValue ? "Select village" : "Select taluk first", value: "" },
+    {
+      label: selectedTalukValue ? "Select village" : "Select taluk first",
+      value: "",
+    },
     ...villages.map((entry) => ({ label: entry, value: entry })),
   ];
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permission needed", "Please allow photo access to upload a listing.");
+      Alert.alert(
+        "Permission needed",
+        "Please allow photo access to upload a listing.",
+      );
       return;
     }
 
@@ -454,21 +508,20 @@ export default function CreateListingScreen() {
     if (!imageUri || !title.trim() || !price || !vehicleType || !year.trim()) {
       Alert.alert(
         "Missing required fields",
-        "Please fill Image, Listing Title, Price, Vehicle Type, and Year."
+        "Please fill Image, Listing Title, Price, Vehicle Type, and Year.",
       );
       return;
     }
 
-    if (!selectedStateValue || !selectedDistrictValue || !selectedTalukValue || !selectedVillageValue) {
-      Alert.alert(
-        "Missing location",
-        "Please select a state, district, taluk, and village before publishing."
-      );
-      return;
-    }
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // Location is now OPTIONAL
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
     if (!userLoaded || !user) {
-      Alert.alert("Sign in required", "Please sign in before publishing a listing.");
+      Alert.alert(
+        "Sign in required",
+        "Please sign in before publishing a listing.",
+      );
       return;
     }
 
@@ -484,11 +537,11 @@ export default function CreateListingScreen() {
         mileage,
         fuelType,
         transmission,
-        location: composedLocation,
-        state: stateName,
-        district,
-        taluk,
-        village,
+        location: composedLocation || "Location not provided",
+        state: stateName || "",
+        district: district || "",
+        taluk: taluk || "",
+        village: village || "",
         pincode,
         condition,
         description,
@@ -503,6 +556,7 @@ export default function CreateListingScreen() {
         sellerVerified: "true",
       };
 
+      // ... rest of your submit logic remains same
       if (isEditing && existing && imageUri.startsWith("http")) {
         await updateProduct(existing._id, payload);
       } else {
@@ -524,7 +578,10 @@ export default function CreateListingScreen() {
           await updateProduct(existing._id, formData);
         } else {
           if (!imageUri) {
-            Alert.alert("Missing photo", "Please upload a vehicle photo before publishing.");
+            Alert.alert(
+              "Missing photo",
+              "Please upload a vehicle photo before publishing.",
+            );
             return;
           }
           await createProduct(formData);
@@ -533,7 +590,9 @@ export default function CreateListingScreen() {
 
       Alert.alert(
         isEditing ? "Updated" : "Published",
-        isEditing ? "Your listing has been updated." : "Your listing is now live."
+        isEditing
+          ? "Your listing has been updated."
+          : "Your listing is now live.",
       );
       router.back();
     } catch (error: any) {
@@ -560,12 +619,21 @@ export default function CreateListingScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <ArrowLeft size={18} color="#101828" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{isEditing ? "Edit Listing" : "Create Listing"}</Text>
+        <Text style={styles.headerTitle}>
+          {isEditing ? "Edit Listing" : "Create Listing"}
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -582,7 +650,11 @@ export default function CreateListingScreen() {
       ) : null}
 
       <Text style={styles.sectionTitle}>AI Analysis Image</Text>
-      <TouchableOpacity style={styles.uploadBox} onPress={pickImage} activeOpacity={0.9}>
+      <TouchableOpacity
+        style={styles.uploadBox}
+        onPress={pickImage}
+        activeOpacity={0.9}
+      >
         <View style={styles.uploadIconCircle}>
           <Upload size={22} color="#2F64FF" />
         </View>
@@ -603,10 +675,22 @@ export default function CreateListingScreen() {
 
       <Text style={styles.sectionTitle}>Listing Details</Text>
       <Text style={styles.sectionHint}>
-        Only image, title, price, vehicle type, and year are required. Brand, model, and the rest are optional.
+        Only image, title, price, vehicle type, and year are required. Brand,
+        model, and the rest are optional.
       </Text>
-      <Field label="Listing Title *" value={title} onChangeText={setTitle} placeholder="2021 BMW M4 Competition" />
-      <Field label="Price (\u20B9)" value={price} onChangeText={setPrice} placeholder="72,000" keyboardType="numeric" />
+      <Field
+        label="Listing Title *"
+        value={title}
+        onChangeText={setTitle}
+        placeholder="2021 BMW M4 Competition"
+      />
+      <Field
+        label="Price (₹)"
+        value={price}
+        onChangeText={setPrice}
+        placeholder="72,000"
+        keyboardType="numeric"
+      />
 
       <View style={styles.twoCol}>
         <View style={styles.halfField}>
@@ -618,9 +702,16 @@ export default function CreateListingScreen() {
           />
         </View>
         <View style={styles.halfField}>
-          <Field label="Year *" value={year} onChangeText={setYear} placeholder="2021" keyboardType="numeric" />
+          <Field
+            label="Year *"
+            value={year}
+            onChangeText={setYear}
+            placeholder="2021"
+            keyboardType="numeric"
+          />
         </View>
       </View>
+
       <View style={styles.twoCol}>
         <View style={styles.halfField}>
           <PickerField
@@ -631,12 +722,18 @@ export default function CreateListingScreen() {
               if (value !== "Other") {
                 setCustomBrand("");
               }
-              if (!modelOptionsByBrand[value]?.some((option) => option.value === model)) {
+              // Reset model when brand changes
+              const newModelOptions = getModelsForBrand(vehicleType, value);
+              if (
+                !newModelOptions.some(
+                  (option) => option.value === model && option.value !== "",
+                )
+              ) {
                 setModel("");
                 setCustomModel("");
               }
             }}
-            options={brandOptions}
+            options={getBrandsForVehicleType(vehicleType)}
           />
           {brand === "Other" ? (
             <Field
@@ -657,7 +754,7 @@ export default function CreateListingScreen() {
                 setCustomModel("");
               }
             }}
-            options={getModelOptions(brand)}
+            options={getModelsForBrand(vehicleType, brand)}
           />
           {model === "Other" ? (
             <Field
@@ -669,22 +766,47 @@ export default function CreateListingScreen() {
           ) : null}
         </View>
       </View>
+
       <View style={styles.twoCol}>
         <View style={styles.halfField}>
-          <Field label="Mileage" value={mileage} onChangeText={setMileage} placeholder="18,400 mi" keyboardType="numeric" />
+          <Field
+            label="Mileage"
+            value={mileage}
+            onChangeText={setMileage}
+            placeholder="18,400 mi"
+            keyboardType="numeric"
+          />
         </View>
         <View style={styles.halfField}>
-          <Field label="Fuel Type" value={fuelType} onChangeText={setFuelType} placeholder="Petrol" />
+          <Field
+            label="Fuel Type"
+            value={fuelType}
+            onChangeText={setFuelType}
+            placeholder="Petrol"
+          />
         </View>
       </View>
       <View style={styles.twoCol}>
         <View style={styles.halfField}>
-          <Field label="Transmission" value={transmission} onChangeText={setTransmission} placeholder="Automatic" />
+          <Field
+            label="Transmission"
+            value={transmission}
+            onChangeText={setTransmission}
+            placeholder="Automatic"
+          />
         </View>
         <View style={styles.halfField}>
-          <Field label="Pincode" value={pincode} onChangeText={setPincode} placeholder="400053" keyboardType="numeric" />
+          <Field
+            label="Pincode"
+            value={pincode}
+            onChangeText={setPincode}
+            placeholder="400053"
+            keyboardType="numeric"
+          />
         </View>
       </View>
+
+      {/* All location pickers, condition, description, creator card, publish button - 100% unchanged */}
       <View style={styles.twoCol}>
         <View style={styles.halfField}>
           <PickerField
@@ -762,7 +884,10 @@ export default function CreateListingScreen() {
       <View style={styles.creatorCard}>
         <View style={styles.creatorRow}>
           {sellerAvatar ? (
-            <Image source={{ uri: sellerAvatar }} style={styles.creatorAvatar} />
+            <Image
+              source={{ uri: sellerAvatar }}
+              style={styles.creatorAvatar}
+            />
           ) : (
             <View style={styles.creatorAvatarFallback}>
               <User size={18} color="#2F64FF" />
@@ -770,18 +895,28 @@ export default function CreateListingScreen() {
           )}
           <View style={{ flex: 1 }}>
             <Text style={styles.creatorName}>{sellerName}</Text>
-            <Text style={styles.creatorMeta}>{sellerEmail || "Email not available"}</Text>
+            <Text style={styles.creatorMeta}>
+              {sellerEmail || "Email not available"}
+            </Text>
           </View>
         </View>
-        <Text style={styles.creatorHint}>This post will be linked to your signed-in account.</Text>
+        <Text style={styles.creatorHint}>
+          This post will be linked to your signed-in account.
+        </Text>
       </View>
 
-      <TouchableOpacity style={styles.publishButton} onPress={submit} disabled={loading}>
+      <TouchableOpacity
+        style={styles.publishButton}
+        onPress={submit}
+        disabled={loading}
+      >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <>
-            <Text style={styles.publishText}>{isEditing ? "Update Listing" : "Publish Listing"}</Text>
+            <Text style={styles.publishText}>
+              {isEditing ? "Update Listing" : "Publish Listing"}
+            </Text>
             <ChevronRight size={18} color="#fff" />
           </>
         )}
@@ -841,7 +976,11 @@ function PickerField({
     <View style={styles.fieldWrap}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <View style={styles.pickerWrap}>
-        <Picker selectedValue={value} onValueChange={onValueChange} style={styles.picker}>
+        <Picker
+          selectedValue={value}
+          onValueChange={onValueChange}
+          style={styles.picker}
+        >
           {options.map((option) => (
             <Picker.Item
               key={option.value || option.label}
@@ -859,7 +998,11 @@ function PickerField({
 const styles = {
   screen: { flex: 1, backgroundColor: "#fff" as const },
   content: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 120 },
-  center: { flex: 1, alignItems: "center" as const, justifyContent: "center" as const },
+  center: {
+    flex: 1,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+  },
   headerRow: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
@@ -883,10 +1026,26 @@ const styles = {
   },
   stepText: { color: "#2F64FF", fontWeight: "800" as const, marginBottom: 8 },
   progressTrack: { height: 8, borderRadius: 999, backgroundColor: "#E4E7EC" },
-  progressFill: { width: "100%", height: "100%", borderRadius: 999, backgroundColor: "#2F64FF" },
+  progressFill: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 999,
+    backgroundColor: "#2F64FF",
+  },
   stepCount: { color: "#667085", fontWeight: "700" as const, marginTop: 24 },
-  sectionTitle: { fontSize: 17, fontWeight: "800" as const, color: "#101828", marginBottom: 12, marginTop: 6 },
-  sectionHint: { color: "#667085", fontSize: 12, lineHeight: 18, marginBottom: 14 },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: "800" as const,
+    color: "#101828",
+    marginBottom: 12,
+    marginTop: 6,
+  },
+  sectionHint: {
+    color: "#667085",
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 14,
+  },
   uploadBox: {
     borderWidth: 1.5,
     borderStyle: "dashed",
@@ -924,7 +1083,12 @@ const styles = {
     backgroundColor: "#EEF2F6",
   },
   fieldWrap: { marginBottom: 12 },
-  fieldLabel: { marginBottom: 8, color: "#101828", fontSize: 13, fontWeight: "700" as const },
+  fieldLabel: {
+    marginBottom: 8,
+    color: "#101828",
+    fontSize: 13,
+    fontWeight: "700" as const,
+  },
   fieldInput: {
     minHeight: 48,
     borderWidth: 1,
@@ -934,7 +1098,11 @@ const styles = {
     backgroundColor: "#fff",
     color: "#101828",
   },
-  multilineInput: { minHeight: 96, paddingTop: 14, textAlignVertical: "top" as const },
+  multilineInput: {
+    minHeight: 96,
+    paddingTop: 14,
+    textAlignVertical: "top" as const,
+  },
   pickerWrap: {
     borderWidth: 1,
     borderColor: "#E4E7EC",
@@ -983,7 +1151,12 @@ const styles = {
   },
   creatorName: { color: "#101828", fontSize: 15, fontWeight: "900" as const },
   creatorMeta: { marginTop: 3, color: "#667085", fontSize: 12 },
-  creatorHint: { marginTop: 10, color: "#667085", fontSize: 12, lineHeight: 18 },
+  creatorHint: {
+    marginTop: 10,
+    color: "#667085",
+    fontSize: 12,
+    lineHeight: 18,
+  },
   publishButton: {
     marginTop: 18,
     backgroundColor: "#2F64FF",
