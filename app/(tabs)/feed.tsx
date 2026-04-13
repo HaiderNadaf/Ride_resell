@@ -34,7 +34,9 @@ export default function SearchFilterScreen() {
   const [selectedVehicle, setSelectedVehicle] = useState("All");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedFuel, setSelectedFuel] = useState<string[]>([]);
-  const [selectedTransmission, setSelectedTransmission] = useState<string[]>([]);
+  const [selectedTransmission, setSelectedTransmission] = useState<string[]>(
+    [],
+  );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
 
   useEffect(() => {
@@ -67,15 +69,20 @@ export default function SearchFilterScreen() {
       const fuelType = normalizeText(item.fuelType);
       const transmission = normalizeText(item.transmission);
       const location = normalizeText(item.location);
-      const listing = normalizeText(item.listingTitle || `${item.year} ${item.brand} ${item.model}`);
+      const listing = normalizeText(
+        item.listingTitle || `${item.year} ${item.brand} ${item.model}`,
+      );
       const description = normalizeText(item.text);
       const itemPrice = numericValue(item.price);
 
-      const matchesVehicle = matchesVehicleCategory(item.category, selectedVehicle);
+      const matchesVehicle = matchesVehicleCategory(
+        item.category,
+        selectedVehicle,
+      );
       const matchesSearch =
         !search ||
         [brand, model, category, location, listing, description].some((value) =>
-          value.includes(search)
+          value.includes(search),
         );
       const matchesPrice =
         (min === 0 || itemPrice >= min) && (max === 0 || itemPrice <= max);
@@ -87,7 +94,9 @@ export default function SearchFilterScreen() {
         selectedFuel.some((selected) => normalizeText(selected) === fuelType);
       const matchesTransmission =
         selectedTransmission.length === 0 ||
-        selectedTransmission.some((selected) => normalizeText(selected) === transmission);
+        selectedTransmission.some(
+          (selected) => normalizeText(selected) === transmission,
+        );
 
       return (
         matchesVehicle &&
@@ -111,7 +120,10 @@ export default function SearchFilterScreen() {
   const resultCount = results.length;
 
   const priceLimit = useMemo(() => {
-    const highest = catalog.reduce((max, item) => Math.max(max, numericValue(item.price)), 0);
+    const highest = catalog.reduce(
+      (max, item) => Math.max(max, numericValue(item.price)),
+      0,
+    );
     return Math.max(highest, 1000000);
   }, [catalog]);
 
@@ -139,7 +151,10 @@ export default function SearchFilterScreen() {
   const renderHeader = () => (
     <>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <ArrowLeft size={20} color="#101828" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Search & Filter</Text>
@@ -162,7 +177,11 @@ export default function SearchFilterScreen() {
       <Text style={styles.resultsCount}>{resultCount} results found</Text>
 
       <SectionTitle title="Vehicle Type" />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.rowScroll}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.rowScroll}
+      >
         {vehicleTypes.map((item) => {
           const active = selectedVehicle === item;
           return (
@@ -171,7 +190,9 @@ export default function SearchFilterScreen() {
               onPress={() => setSelectedVehicle(item)}
               style={[styles.pill, active && styles.pillActive]}
             >
-              <Text style={[styles.pillText, active && styles.pillTextActive]}>{item}</Text>
+              <Text style={[styles.pillText, active && styles.pillTextActive]}>
+                {item}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -180,8 +201,12 @@ export default function SearchFilterScreen() {
       <SectionTitle title="Price Range" />
       <View style={styles.rangeCard}>
         <View style={styles.rangeLabels}>
-          <Text style={styles.rangeLabelText}>{formatMoney(priceRange[0])}</Text>
-          <Text style={styles.rangeLabelText}>{formatMoney(priceRange[1])}</Text>
+          <Text style={styles.rangeLabelText}>
+            {formatMoney(priceRange[0])}
+          </Text>
+          <Text style={styles.rangeLabelText}>
+            {formatMoney(priceRange[1])}
+          </Text>
         </View>
         <RangeSlider
           minimumValue={0}
@@ -190,7 +215,8 @@ export default function SearchFilterScreen() {
           onChange={setPriceRange}
         />
         <Text style={styles.rangeHint}>
-          Showing results from {formatMoney(priceRange[0])} to {formatMoney(priceRange[1])}
+          Showing results from {formatMoney(priceRange[0])} to{" "}
+          {formatMoney(priceRange[1])}
         </Text>
       </View>
 
@@ -204,15 +230,25 @@ export default function SearchFilterScreen() {
               onPress={() => setSingleValue(brand, setSelectedBrands)}
               style={[styles.checkItem, active && styles.checkItemActive]}
             >
-              <View style={[styles.checkDot, active && styles.checkDotActive]} />
-              <Text style={[styles.checkText, active && styles.checkTextActive]}>{brand}</Text>
+              <View
+                style={[styles.checkDot, active && styles.checkDotActive]}
+              />
+              <Text
+                style={[styles.checkText, active && styles.checkTextActive]}
+              >
+                {brand}
+              </Text>
             </TouchableOpacity>
           );
         })}
       </View>
 
       <SectionTitle title="Fuel Type" />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.rowScroll}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.rowScroll}
+      >
         {fuelTypes.map((item) => {
           const active = selectedFuel.includes(item);
           return (
@@ -221,7 +257,12 @@ export default function SearchFilterScreen() {
               onPress={() => setSingleValue(item, setSelectedFuel)}
               style={[styles.smallPill, active && styles.smallPillActive]}
             >
-              <Text style={[styles.smallPillText, active && styles.smallPillTextActive]}>
+              <Text
+                style={[
+                  styles.smallPillText,
+                  active && styles.smallPillTextActive,
+                ]}
+              >
                 {item}
               </Text>
             </TouchableOpacity>
@@ -230,7 +271,11 @@ export default function SearchFilterScreen() {
       </ScrollView>
 
       <SectionTitle title="Transmission" />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.rowScroll}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.rowScroll}
+      >
         {transmissionTypes.map((item) => {
           const active = selectedTransmission.includes(item);
           return (
@@ -239,7 +284,12 @@ export default function SearchFilterScreen() {
               onPress={() => setSingleValue(item, setSelectedTransmission)}
               style={[styles.smallPill, active && styles.smallPillActive]}
             >
-              <Text style={[styles.smallPillText, active && styles.smallPillTextActive]}>
+              <Text
+                style={[
+                  styles.smallPillText,
+                  active && styles.smallPillTextActive,
+                ]}
+              >
                 {item}
               </Text>
             </TouchableOpacity>
@@ -258,7 +308,8 @@ export default function SearchFilterScreen() {
         keyExtractor={(item) => item._id}
         numColumns={2}
         columnWrapperStyle={results.length > 1 ? styles.resultsRow : undefined}
-        ListHeaderComponent={renderHeader}
+        keyboardShouldPersistTaps="always" // ✅ FIX
+        ListHeaderComponent={<>{renderHeader()}</>} // ✅ FIX
         ListEmptyComponent={
           loading ? (
             <View style={styles.loadingWrap}>
@@ -268,7 +319,8 @@ export default function SearchFilterScreen() {
             <View style={styles.emptyState}>
               <Text style={styles.emptyTitle}>No matches</Text>
               <Text style={styles.emptyText}>
-                Try widening the price range or clearing a filter to see more results.
+                Try widening the price range or clearing a filter to see more
+                results.
               </Text>
             </View>
           )
@@ -290,7 +342,9 @@ export default function SearchFilterScreen() {
             <Text style={styles.resultTitle} numberOfLines={2}>
               {item.listingTitle || `${item.year} ${item.brand} ${item.model}`}
             </Text>
-            <Text style={styles.resultPrice}>From {formatMoney(item.price)}</Text>
+            <Text style={styles.resultPrice}>
+              From {formatMoney(item.price)}
+            </Text>
             <View style={styles.resultFooter}>
               <Text style={styles.resultLink}>View Details</Text>
               <Text style={styles.resultArrow}>-&gt;</Text>
@@ -323,16 +377,22 @@ function RangeSlider({
   const minStart = useRef(0);
   const maxStart = useRef(0);
   const range = Math.max(maximumValue - minimumValue, 1);
-  const minPosition = trackWidth ? ((value[0] - minimumValue) / range) * trackWidth : 0;
-  const maxPosition = trackWidth ? ((value[1] - minimumValue) / range) * trackWidth : 0;
+  const minPosition = trackWidth
+    ? ((value[0] - minimumValue) / range) * trackWidth
+    : 0;
+  const maxPosition = trackWidth
+    ? ((value[1] - minimumValue) / range) * trackWidth
+    : 0;
 
   const updateFromPosition = (position: number, handle: "min" | "max") => {
     if (!trackWidth) return;
 
     const nextValue = clamp(
-      Math.round((clamp(position, 0, trackWidth) / trackWidth) * range + minimumValue),
+      Math.round(
+        (clamp(position, 0, trackWidth) / trackWidth) * range + minimumValue,
+      ),
       minimumValue,
-      maximumValue
+      maximumValue,
     );
 
     if (handle === "min") {
@@ -347,7 +407,10 @@ function RangeSlider({
     if (!trackWidth) return;
     const distanceToMin = Math.abs(position - minPosition);
     const distanceToMax = Math.abs(position - maxPosition);
-    updateFromPosition(position, distanceToMin <= distanceToMax ? "min" : "max");
+    updateFromPosition(
+      position,
+      distanceToMin <= distanceToMax ? "min" : "max",
+    );
   };
 
   const minPan = PanResponder.create({
@@ -439,11 +502,15 @@ function matchesBrandFilter(item: Product, selected: string) {
   const brand = normalizeText(item.brand);
   const filter = normalizeText(selected);
 
-  if (filter === "car") return body.includes("car") && !body.includes("electric");
-  if (filter === "bike") return body.includes("bike") && !body.includes("electric");
+  if (filter === "car")
+    return body.includes("car") && !body.includes("electric");
+  if (filter === "bike")
+    return body.includes("bike") && !body.includes("electric");
   if (filter === "ev") return body.includes("electric");
-  if (filter === "electric bike") return body.includes("electric") && body.includes("bike");
-  if (filter === "electric car") return body.includes("electric") && body.includes("car");
+  if (filter === "electric bike")
+    return body.includes("electric") && body.includes("bike");
+  if (filter === "electric car")
+    return body.includes("electric") && body.includes("car");
 
   return brand === filter;
 }
@@ -602,7 +669,7 @@ const styles = {
     gap: 12,
   },
   resultCard: {
-    width: "48%",
+    width: "48%" as any,
     backgroundColor: "#fff",
     borderRadius: 18,
     borderWidth: 1,
@@ -616,7 +683,7 @@ const styles = {
     marginBottom: 12,
   },
   resultImage: {
-    width: "100%",
+    width: "100%" as any,
     height: 92,
     borderRadius: 14,
     backgroundColor: "#F2F4F7",
@@ -628,7 +695,12 @@ const styles = {
     color: "#101828",
     minHeight: 40,
   },
-  resultPrice: { marginTop: 6, color: "#667085", fontSize: 13, fontWeight: "600" as const },
+  resultPrice: {
+    marginTop: 6,
+    color: "#667085",
+    fontSize: 13,
+    fontWeight: "600" as const,
+  },
   resultFooter: {
     marginTop: 10,
     flexDirection: "row" as const,
