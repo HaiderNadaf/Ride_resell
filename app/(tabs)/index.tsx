@@ -369,7 +369,7 @@ const styles = {
     fontSize: 12,
     fontWeight: "900" as const,
   },
-  avatarImage: { width: "100%", height: "100%" },
+  avatarImage: { width: 34, height: 34 },
   searchRow: {
     flexDirection: "row" as const,
     alignItems: "center" as const,
@@ -461,8 +461,12 @@ const styles = {
     shadowOffset: { width: 0, height: 12 },
     elevation: 4,
   },
-  cardImageWrap: { height: 160, position: "relative" as const },
-  cardImage: { width: "100%", height: "100%" },
+  cardImageWrap: {
+    height: 160,
+    position: "relative" as const,
+    overflow: "hidden" as const,
+  },
+  cardImage: { width: "100%" as any, height: "100%" as any },
   heartPill: {
     position: "absolute" as const,
     top: 12,
