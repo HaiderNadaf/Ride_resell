@@ -22,6 +22,8 @@ export default function SignInScreen() {
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [showSecondFactor, setShowSecondFactor] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -54,6 +56,22 @@ export default function SignInScreen() {
     setLoading(true);
 
     try {
+      if (showSecondFactor) {
+        const result = await signIn.attemptSecondFactor({
+          strategy: "email_code",
+          code,
+        });
+
+        if (result.status === "complete") {
+          await setActive({ session: result.createdSessionId });
+          router.replace("/(tabs)");
+          return;
+        }
+
+        setErr("Verification is still pending. Please try again.");
+        return;
+      }
+
       const result = await signIn.create({
         identifier,
         password,
@@ -62,9 +80,19 @@ export default function SignInScreen() {
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         router.replace("/(tabs)");
-      } else {
-        setErr("Login incomplete. Please try again.");
+        return;
       }
+
+      if (result.status === "needs_second_factor") {
+        await signIn.prepareSecondFactor({
+          strategy: "email_code",
+        });
+        setShowSecondFactor(true);
+        setErr("We sent a verification code to your email.");
+        return;
+      }
+
+      setErr(`Login is not complete yet (${result.status}). Please try again.`);
     } catch (e: any) {
       const message =
         e.errors?.[0]?.longMessage ||
@@ -134,6 +162,21 @@ export default function SignInScreen() {
               editable={!loading}
             />
 
+            {showSecondFactor ? (
+              <>
+                <Text style={styles.label}>Verification code</Text>
+                <TextInput
+                  placeholder="Enter the code from your email"
+                  placeholderTextColor="#98A2B3"
+                  keyboardType="number-pad"
+                  style={styles.input}
+                  value={code}
+                  onChangeText={setCode}
+                  editable={!loading}
+                />
+              </>
+            ) : null}
+
             <TouchableOpacity
               style={[styles.button, loading && styles.buttonDisabled]}
               onPress={onPress}
@@ -141,6 +184,8 @@ export default function SignInScreen() {
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
+              ) : showSecondFactor ? (
+                <Text style={styles.buttonText}>Verify & Continue</Text>
               ) : (
                 <Text style={styles.buttonText}>Sign In</Text>
               )}
